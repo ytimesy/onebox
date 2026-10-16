@@ -1,0 +1,25 @@
+{
+  "test_date": "2026-10-12",
+  "environment": "assistant container; not user Mac mini",
+  "method": "deterministic seeded candidate generation + exact-cover reference solver (cap 2)",
+  "accepted_count": 30,
+  "candidate_draws": 495,
+  "rejected_non_unique_after_geometry_filter": 4,
+  "elapsed_seconds": 0.212,
+  "reference_sample": {
+    "solution_count_capped": 1,
+    "count_limit": 2,
+    "exhaustive": true,
+    "aborted": false,
+    "unique_proven": true,
+    "nodes": 10,
+    "legal_placements": 29
+  },
+  "limitations": [
+    "Not a UI/playability test",
+    "No human difficulty or 60-second completion evidence",
+    "Not a production content pipeline",
+    "Batch dedup is literal only; rotational/reflection dedup still required in production",
+    "No cloud deployment or load test performed"
+  ]
+}

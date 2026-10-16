@@ -1,0 +1,13 @@
+test_all_thirty_with_two_solvers (test_reference.ReferenceTests.test_all_thirty_with_two_solvers) ... ok
+test_budget_abort_not_proven (test_reference.ReferenceTests.test_budget_abort_not_proven) ... ok
+test_four_rotations_identity (test_reference.ReferenceTests.test_four_rotations_identity) ... ok
+test_none_and_multiple_are_rejected (test_reference.ReferenceTests.test_none_and_multiple_are_rejected) ... ok
+test_reject_bad_board (test_reference.ReferenceTests.test_reject_bad_board) ... ok
+test_reject_duplicate_cells (test_reference.ReferenceTests.test_reject_duplicate_cells) ... ok
+test_reject_reflection_rule (test_reference.ReferenceTests.test_reject_reflection_rule) ... ok
+test_solution_geometry (test_reference.ReferenceTests.test_solution_geometry) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.410s
+
+OK

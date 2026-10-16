@@ -1,0 +1,45 @@
+{
+  "name": "onebox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:reviewer": "node scripts/build-reviewer.mjs",
+    "serve:reviewer": "node packages/puzzle-tools/reviewer-server.ts",
+    "test:reviewer-server": "node --test tests/reviewer-server.test.mjs",
+    "check:reviewer": "node scripts/check-reviewer.ts",
+    "curate": "node packages/puzzle-tools/curation-cli.ts",
+    "puzzles": "node packages/puzzle-tools/cli.ts",
+    "dev": "vite --host 127.0.0.1 --port 4319 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build": "npm run typecheck && vite build && node scripts/check-dist.mjs",
+    "preview": "vite preview --host 127.0.0.1 --port 4319 --strictPort",
+    "check": "npm run typecheck && npm test && npm run build",
+    "build:playtest": "node scripts/build-playtest.mjs",
+    "serve:playtest": "node scripts/static-server.mjs",
+    "test:server": "node --test tests/server.test.mjs",
+    "promote:playtest": "node scripts/promote-playtest.mjs",
+    "check:playtest": "node scripts/check-playtest.mjs",
+    "check:sharing": "node scripts/check-sharing.mjs",
+    "check:history": "node scripts/check-history.mjs",
+    "daily": "node packages/puzzle-tools/daily-cli.ts",
+    "test:review-https": "node --test tests/review-https.test.mjs",
+    "install:review-https": "node scripts/install-review-https.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.3"
+  }
+}

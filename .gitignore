@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.env*
+content/private/*
+!content/private/.gitkeep
+playwright-report/
+test-results/
+__pycache__/
+*.log
+.DS_Store
+
+dist-playtest/
+releases/
+var/
+ops/tunnel.yml
+
+# Public source repository: keep private answers and local evidence on this PC.
+*.PRIVATE.*
+evidence/
+*.pem
+*.key
+*.p12
+*.pfx

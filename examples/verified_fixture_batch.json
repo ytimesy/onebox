@@ -1,0 +1,4742 @@
+[
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-001",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 21,
+      "legal_placements": 82
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-002",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 20,
+      "legal_placements": 49
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-003",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 17,
+      "legal_placements": 71
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-004",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 16,
+      "legal_placements": 55
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-005",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 16,
+      "legal_placements": 82
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-006",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 12,
+      "legal_placements": 69
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-007",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 12,
+      "legal_placements": 58
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-008",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 11,
+      "legal_placements": 42
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-009",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 10,
+      "legal_placements": 27
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-010",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 10,
+      "legal_placements": 36
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-011",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 10,
+      "legal_placements": 29
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-012",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 9,
+      "legal_placements": 45
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-013",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 9,
+      "legal_placements": 43
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-014",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 9,
+      "legal_placements": 50
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-015",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 9,
+      "legal_placements": 74
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-016",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 8,
+      "legal_placements": 32
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-017",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 8,
+      "legal_placements": 36
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-018",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 8,
+      "legal_placements": 43
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-019",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 8,
+      "legal_placements": 32
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-020",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 8,
+      "legal_placements": 51
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-021",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            3
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 7,
+      "legal_placements": 47
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-022",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 7,
+      "legal_placements": 37
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-023",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 7,
+      "legal_placements": 58
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-024",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 6,
+      "legal_placements": 30
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-025",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            2
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 6,
+      "legal_placements": 58
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-026",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            3
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 6,
+      "legal_placements": 32
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-027",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 6,
+      "legal_placements": 76
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-028",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 5,
+      "legal_placements": 34
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-029",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 5,
+      "legal_placements": 38
+    }
+  },
+  {
+    "puzzle": {
+      "schema_version": 1,
+      "rules_version": "onebox-v1",
+      "puzzle_id": "fixture-030",
+      "purpose": "design_verification_only",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blocked": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      "pieces": [
+        {
+          "id": "A",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "dots"
+        },
+        {
+          "id": "B",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "stripes"
+        },
+        {
+          "id": "C",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "grid"
+        },
+        {
+          "id": "D",
+          "cells": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "initial_rotation": 0,
+          "pattern_id": "rings"
+        }
+      ],
+      "rules": {
+        "allow_reflection": false,
+        "target_seconds": 60,
+        "allow_overtime": true
+      }
+    },
+    "verification": {
+      "solution_count_capped": 1,
+      "count_limit": 2,
+      "exhaustive": true,
+      "aborted": false,
+      "unique_proven": true,
+      "nodes": 5,
+      "legal_placements": 39
+    }
+  }
+]

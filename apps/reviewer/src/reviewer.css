@@ -1,0 +1,71 @@
+.review-panel {
+  padding: 16px;
+  margin: 12px auto;
+  max-width: 720px;
+  border: 1px solid #6c8277;
+  border-radius: 12px;
+  background: #f4f1e9;
+  overflow-wrap: anywhere;
+}
+.review-panel h1,
+.review-panel h2 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+.review-panel p {
+  margin: 8px 0;
+}
+.review-panel label {
+  display: block;
+  margin: 12px 0;
+}
+.review-panel select {
+  max-width: 100%;
+  font: inherit;
+  padding: 8px;
+}
+.review-panel button {
+  margin: 6px 4px 6px 0;
+  min-height: 44px;
+}
+.review-panel ul {
+  padding-left: 20px;
+}
+.review-report {
+  width: min(600px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+}
+.review-report pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+.review-report label input {
+  margin-right: 8px;
+}
+.inventory-counts,
+.inventory-cohorts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 8px;
+}
+.inventory-counts div,
+.inventory-cohorts section {
+  min-width: 0;
+  border: 1px solid #6c8277;
+  border-radius: 8px;
+  padding: 10px;
+}
+.inventory-counts dd {
+  margin: 4px 0 0;
+}
+.inventory h3 {
+  font-size: 17px;
+  margin: 0 0 8px;
+}
+.stock-action_required,
+.stock-warning {
+  border-left: 4px solid #9c3428;
+  padding: 8px;
+  font-weight: bold;
+}
