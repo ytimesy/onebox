@@ -38,6 +38,8 @@ export interface Attempt {
   timer_visible: boolean;
   started_at_client: string;
   finished_at_client: string | null;
+  // Optional additive v1 field: older records remain readable.
+  undo_history?: Placement[][];
 }
 export const ids: PieceId[] = ["A", "B", "C", "D"];
 export const key = ([x, y]: Cell) => `${x},${y}`;
@@ -248,8 +250,13 @@ export function sixtyTag(a: Attempt) {
     a.hint_count === 0 &&
     !a.interrupted &&
     a.clock_status === "continuous" &&
+    Number.isFinite(a.active_elapsed_ms) &&
+    a.active_elapsed_ms >= 0 &&
     a.active_elapsed_ms <= 60000
   );
+}
+export function secondsText(ms: number) {
+  return (Math.ceil(ms / 100) / 10).toFixed(1);
 }
 export function canonical(v: unknown): string {
   if (Array.isArray(v)) return `[${v.map(canonical).join(",")}]`;
@@ -302,6 +309,10 @@ export function validateAttempt(v: unknown, p: Puzzle, hash: string): Attempt {
     ) ||
     !Array.isArray(v.placements) ||
     !validPlacements(p, v.placements as Placement[]) ||
+    (v.undo_history !== undefined &&
+      (!Array.isArray(v.undo_history) ||
+        v.undo_history.length > 512 ||
+        !v.undo_history.every((all) => validPlacements(p, all)))) ||
     !Number.isFinite(v.active_elapsed_ms) ||
     Number(v.active_elapsed_ms) < 0 ||
     !Number.isSafeInteger(v.hint_count) ||

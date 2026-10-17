@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -29,8 +30,14 @@ import playtestRaw from "./playtest.json";
 import tutorialRaw from "./tutorial.json";
 import { words, type Locale } from "./i18n";
 import { store } from "./storage";
+import { TransactionLease, withStorageMutation } from "./lease";
+import type {
+  PublishedProblem,
+  ReleaseManifest,
+} from "../../../packages/game-core/release.ts";
 import ShareResult from "./ShareResult";
 import RecentAttempts from "./RecentAttempts";
+import { DailyStartError } from "./daily-start";
 import {
   fixedPath,
   publicRoute,
@@ -38,8 +45,17 @@ import {
   publicOrigin,
   publicMetadata,
 } from "../../../packages/game-core/public-route.ts";
-const playtest = import.meta.env.VITE_STAGE === "playtest";
-const puzzle = validatePuzzle(playtest ? playtestRaw : raw),
+const playtest =
+  import.meta.env.VITE_STAGE === "playtest" ||
+  (import.meta.env.VITE_STAGE === "daily" &&
+    /^\/(ja|en)\/p\/playtest-fixed-v1\/$/.test(location.pathname));
+const puzzle = validatePuzzle(
+    import.meta.env.VITE_STAGE === "playtest" ||
+      import.meta.env.VITE_STAGE === "daily-preview" ||
+      import.meta.env.VITE_STAGE === "daily"
+      ? playtestRaw
+      : raw,
+  ),
   tutorialPuzzle = validatePuzzle(tutorialRaw);
 type Selection = {
   piece_id: PieceId;
@@ -58,7 +74,7 @@ type Drag = {
   touch: boolean;
 };
 function time(ms: number) {
-  const sec = Math.floor(ms / 1000);
+  const sec = Math.ceil(ms / 1000);
   return `${Math.floor(sec / 60)
     .toString()
     .padStart(2, "0")}:${(sec % 60).toString().padStart(2, "0")}`;
@@ -97,11 +113,24 @@ export default function App({
   reviewer = false,
   onAttempt,
   onReport,
+  publication,
+  beforeStart,
+  historyEntries,
 }: {
   initialPuzzle?: Puzzle;
   reviewer?: boolean;
   onAttempt?: (attempt: Attempt, locale: Locale) => void;
   onReport?: (attempt: Attempt, locale: Locale) => void;
+  beforeStart?: (signal: AbortSignal) => Promise<boolean>;
+  historyEntries?: (signal: AbortSignal) => Promise<PublishedProblem[]>;
+  publication?: {
+    entry: PublishedProblem;
+    manifest: ReleaseManifest;
+    fallback: boolean;
+    updated?: boolean;
+    archived?: boolean;
+    denied?: "withdrawn" | "missing";
+  };
 } = {}) {
   const [locale, setLocale] = useState<Locale>(() =>
       location.pathname.startsWith("/en/") ? "en" : "ja",
@@ -114,12 +143,19 @@ export default function App({
     [fatal, setFatal] = useState(false),
     [selection, setSelection] = useState<Selection | null>(null),
     [message, setMessage] = useState(""),
-    [history, setHistory] = useState<Placement[][]>([]),
+    [checkingStart, setCheckingStart] = useState(false),
+    [startingRun, setStartingRun] = useState(false),
+    [startFailure, setStartFailure] = useState<DailyStartError["code"] | null>(
+      null,
+    ),
     [hintView, setHintView] = useState<ReturnType<typeof hint>>(null),
     [hintBusy, setHintBusy] = useState(false),
     [settings, setSettings] = useState(false),
-    [timerVisible, setTimerVisible] = useState(true),
-    [reduce, setReduce] = useState(false),
+    [preferences] = useState(() => store.preferences()),
+    [timerVisible, setTimerVisible] = useState(
+      preferences.timer_visible ?? true,
+    ),
+    [reduce, setReduce] = useState(preferences.reduce_motion ?? false),
     [blocked, setBlocked] = useState(false),
     [dragView, setDragView] = useState<{ x: number; y: number } | null>(null);
   const live = useRef<Attempt | null>(null),
@@ -135,9 +171,32 @@ export default function App({
     leaseTimer = useRef<ReturnType<typeof setInterval> | null>(null),
     settingsRef = useRef<HTMLDialogElement>(null);
   const leasePuzzle = useRef<string | null>(null);
-  const leaseKind = useRef<"web" | "local" | "memory" | null>(null);
+  const leaseKind = useRef<"web" | "idb" | "memory" | null>(null);
+  const fallback = useRef<TransactionLease | null>(null);
+  const writes = useRef(Promise.resolve(true));
+  const starting = useRef(false);
+  const startAbort = useRef<AbortController | null>(null);
   const playing = a?.state === "playing",
     ended = a?.state === "completed" || a?.state === "revealed";
+  const history = a?.undo_history ?? [];
+  const publicationUnavailable =
+    publication &&
+    (publication.denied ||
+      publication.manifest.recalled_ids.includes(publication.entry.puzzle_id) ||
+      (!publication.archived &&
+        !publication.manifest.recent.some(
+          (e) =>
+            e.puzzle_id === publication.entry.puzzle_id &&
+            e.sha256 === publication.entry.sha256,
+        )));
+  // Start/resume after the board commits, excluding hash/lock/loading delays.
+  useLayoutEffect(() => {
+    if (live.current?.state === "playing") {
+      base.current = live.current.active_elapsed_ms;
+      segment.current = performance.now();
+      wall.current = Date.now();
+    }
+  }, [a?.run_id, a?.state]);
   function update(next: Attempt | null) {
     live.current = next;
     setAttempt(next);
@@ -145,28 +204,19 @@ export default function App({
   }
   function ownsLease(id: string) {
     if (leasePuzzle.current !== id) return false;
-    if (leaseKind.current !== "local") return leaseKind.current !== null;
-    try {
-      const lease = JSON.parse(
-        localStorage.getItem(`onebox:v1:lease:${id}`) ?? "null",
-      );
-      return (
-        lease?.owner === leaseId.current &&
-        Number.isFinite(lease.until) &&
-        lease.until > Date.now()
-      );
-    } catch {
-      // Cannot confirm ownership: continue this page without writing shared state.
-      store.useMemoryOnly();
-      leaseKind.current = "memory";
-      return true;
-    }
+    return leaseKind.current !== null;
   }
+
   function loseLease() {
     const current = snapshot();
     invalidateHint();
-    if (current?.state === "playing")
-      update({ ...current, state: "paused", interrupted: true });
+    if (current)
+      update({
+        ...current,
+        state: "paused",
+        interrupted: true,
+        finished_at_client: null,
+      });
     setSelection(null);
     setDragView(null);
     drag.current = null;
@@ -174,30 +224,70 @@ export default function App({
     setMessage(t.conflict);
     stopLease();
   }
-  function save(next: Attempt) {
+  function save(next: Attempt): Promise<boolean> {
     if (store.wasCleared()) {
       resetFromClear();
-      return false;
+      return Promise.resolve(false);
     }
-    if (!ownsLease(next.puzzle_id) || !store.save(next)) {
+    if (!ownsLease(next.puzzle_id)) {
       loseLease();
-      return false;
+      return Promise.resolve(false);
     }
-    update(next);
-    return true;
+    // Close terminal input immediately, but present a result after its save settles.
+    const terminal = ["completed", "revealed", "abandoned"].includes(
+      next.state,
+    );
+    if (terminal) live.current = next;
+    else update(next);
+    const owner = fallback.current;
+    const write = () => {
+      if (store.wasCleared()) {
+        resetFromClear();
+        return false;
+      }
+      const ok = ownsLease(next.puzzle_id) && store.save(next);
+      if (
+        ok &&
+        store.warning &&
+        live.current?.run_id === next.run_id &&
+        live.current.mode === "first"
+      )
+        update({ ...live.current, mode: "practice" });
+      return ok;
+    };
+    const result = writes.current.then(async () => {
+      try {
+        const ok = owner
+          ? await owner.write(write)
+          : leaseKind.current === "memory"
+            ? write()
+            : await withStorageMutation(write);
+        if (!ok && live.current) loseLease();
+        if (ok && terminal && live.current?.run_id === next.run_id)
+          update(live.current);
+        return ok;
+      } catch {
+        // An unavailable lock cannot authorize writes to shared records.
+        loseLease();
+        return false;
+      }
+    });
+    writes.current = result;
+    return result;
   }
+
   function resetFromClear() {
     invalidateHint();
     stopLease();
     store.discardCache();
     update(null);
     setSelection(null);
-    setHistory([]);
     setHintView(null);
     setDragView(null);
     drag.current = null;
     setBlocked(false);
     setMessage("");
+    setStartFailure(null);
     setSettings(false);
     setPuzzle(initialPuzzle);
   }
@@ -208,10 +298,15 @@ export default function App({
     const now = performance.now(),
       delta = now - segment.current,
       wd = Date.now() - wall.current;
-    if (delta < 0 || Math.abs(wd - delta) > 2000) {
+    if (
+      !Number.isFinite(delta) ||
+      delta < 0 ||
+      !Number.isFinite(wd) ||
+      Math.abs(wd - delta) > 2000
+    ) {
       current.clock_status = "uncertain";
     }
-    return base.current + Math.max(0, delta);
+    return base.current + (Number.isFinite(delta) ? Math.max(0, delta) : 0);
   }
   function snapshot() {
     const current = live.current;
@@ -221,13 +316,13 @@ export default function App({
   }
   function invalidateHint() {
     generation.current++;
+    startAbort.current?.abort();
     worker.current?.terminate();
     worker.current = null;
     setHintBusy(false);
     setHintView(null);
   }
   function stopLease() {
-    const leasedId = leasePuzzle.current;
     leasePuzzle.current = null;
     leaseKind.current = null;
     release.current?.();
@@ -236,25 +331,35 @@ export default function App({
       clearInterval(leaseTimer.current);
       leaseTimer.current = null;
     }
-    if (!leasedId) return;
-    try {
-      const k = `onebox:v1:lease:${leasedId}`,
-        v = JSON.parse(localStorage.getItem(k) ?? "null");
-      if (v?.owner === leaseId.current) localStorage.removeItem(k);
-    } catch {
-      /* unavailable storage uses memory */
-    }
+    const old = fallback.current;
+    fallback.current = null;
+    void old?.release().catch(() => {});
   }
-  async function claim(target: Puzzle): Promise<boolean> {
+  async function claim(target: Puzzle, takeover = false): Promise<boolean> {
     if (ownsLease(target.puzzle_id)) return true;
     if (leasePuzzle.current) stopLease();
     if (navigator.locks) {
+      if (takeover) {
+        try {
+          localStorage.setItem(
+            `onebox:v1:takeover:${target.puzzle_id}`,
+            crypto.randomUUID(),
+          );
+        } catch {
+          return false;
+        }
+      }
+      const controller = new AbortController();
+      const deadline = takeover
+        ? setTimeout(() => controller.abort(), 2500)
+        : null;
       return new Promise((resolve) => {
         void navigator.locks
           .request(
             `onebox:${target.puzzle_id}`,
-            { ifAvailable: true },
+            takeover ? { signal: controller.signal } : { ifAvailable: true },
             async (lock) => {
+              if (deadline) clearTimeout(deadline);
               if (!lock) {
                 resolve(false);
                 return;
@@ -267,46 +372,36 @@ export default function App({
               });
             },
           )
-          .catch(() => resolve(false));
+          .catch(() => {
+            if (deadline) clearTimeout(deadline);
+            resolve(false);
+          });
       });
     }
-    const k = `onebox:v1:lease:${target.puzzle_id}`;
     try {
-      let prev;
-      try {
-        prev = JSON.parse(localStorage.getItem(k) ?? "null");
-      } catch {
-        prev = null;
-      }
-      if (prev && prev.owner !== leaseId.current && prev.until > Date.now())
-        return false;
-      localStorage.setItem(
-        k,
-        JSON.stringify({ owner: leaseId.current, until: Date.now() + 4000 }),
+      const owner = await TransactionLease.open(
+        target.puzzle_id,
+        leaseId.current,
       );
-      await new Promise((r) => setTimeout(r, 80));
-      if (
-        JSON.parse(localStorage.getItem(k) ?? "null")?.owner !== leaseId.current
-      )
+      if (!(await owner.claim(takeover))) {
+        await owner.release();
         return false;
+      }
+      fallback.current = owner;
       leasePuzzle.current = target.puzzle_id;
-      leaseKind.current = "local";
+      leaseKind.current = "idb";
       leaseTimer.current = setInterval(() => {
-        try {
-          if (!ownsLease(target.puzzle_id)) {
+        // Heartbeats use the same transaction and fence as result writes.
+        writes.current = writes.current.then(async () => {
+          try {
+            const ok = await owner.write(() => true);
+            if (!ok) loseLease();
+            return ok;
+          } catch {
             loseLease();
-          } else if (leaseKind.current === "local")
-            localStorage.setItem(
-              k,
-              JSON.stringify({
-                owner: leaseId.current,
-                until: Date.now() + 4000,
-              }),
-            );
-        } catch {
-          store.useMemoryOnly();
-          leaseKind.current = "memory";
-        }
+            return false;
+          }
+        });
       }, 1000);
       return true;
     } catch {
@@ -316,28 +411,41 @@ export default function App({
       return true;
     }
   }
+
   useEffect(() => {
     let cancelled = false;
     hashPuzzle(p)
-      .then((h) => {
+      .then(async (h) => {
         if (cancelled) return;
         setHash(h);
         if (live.current?.puzzle_id === p.puzzle_id) {
           setLoading(false);
           return;
         }
-        const saved = store.read(p, h);
+        let saved: Attempt | null;
+        try {
+          saved = await withStorageMutation(() => store.read(p, h));
+        } catch {
+          store.useMemoryOnly();
+          saved = store.read(p, h);
+        }
+        if (cancelled) return;
         if (saved) {
           if (saved.state === "playing" || saved.state === "paused")
             update({
               ...saved,
+              timer_visible: preferences.timer_visible ?? saved.timer_visible,
               state: "paused",
               interrupted: true,
               clock_status:
                 saved.clock_status === "uncertain" ? "uncertain" : "resumed",
             });
-          else update(saved);
-          setTimerVisible(saved.timer_visible);
+          else
+            update({
+              ...saved,
+              timer_visible: preferences.timer_visible ?? saved.timer_visible,
+            });
+          setTimerVisible(preferences.timer_visible ?? saved.timer_visible);
         }
         setLoading(false);
       })
@@ -378,6 +486,24 @@ export default function App({
           ?.setAttribute("content", meta.description);
       }
     }
+    if (publication) {
+      const fixed = /\/p\//.test(location.pathname);
+      const path = fixed
+        ? `/${locale}/p/${publication.entry.slug}/`
+        : `/${locale}/`;
+      window.history.replaceState(
+        null,
+        "",
+        (fixed ? `/${locale}/p/${publication.entry.slug}/` : `/${locale}/`) +
+          location.search,
+      );
+      document
+        .querySelector('link[rel="canonical"]')
+        ?.setAttribute("href", publicOrigin + path);
+      document
+        .querySelector('meta[property="og:url"]')
+        ?.setAttribute("content", publicOrigin + path);
+    }
   }, [locale]);
   useEffect(() => {
     if (settings) settingsRef.current?.showModal();
@@ -391,8 +517,8 @@ export default function App({
     function hidden() {
       if (document.hidden) pause();
     }
-    function leaving() {
-      pause();
+    async function leaving() {
+      await pause();
       stopLease();
     }
     function external(e: StorageEvent) {
@@ -405,11 +531,16 @@ export default function App({
         return;
       }
       if (
-        leaseKind.current === "local" &&
-        e.key === `onebox:v1:lease:${p.puzzle_id}` &&
-        !ownsLease(p.puzzle_id)
+        e.key === `onebox:v1:takeover:${p.puzzle_id}` &&
+        leaseKind.current === "web"
       ) {
-        loseLease();
+        const current = snapshot();
+        invalidateHint();
+        if (current?.state === "playing")
+          void save({ ...current, state: "paused", interrupted: true }).then(
+            loseLease,
+          );
+        else loseLease();
         return;
       }
       if (
@@ -439,6 +570,7 @@ export default function App({
   }, [p, locale, blocked]);
   useEffect(
     () => () => {
+      startAbort.current?.abort();
       worker.current?.terminate();
       stopLease();
     },
@@ -448,12 +580,31 @@ export default function App({
     target = p,
     mode?: Attempt["mode"],
     initial: Placement[] = [],
+    takeover = false,
+  ) {
+    if (starting.current) return;
+    starting.current = true;
+    setStartingRun(true);
+    setStartFailure(null);
+    try {
+      await startRun(target, mode, initial, takeover);
+    } finally {
+      starting.current = false;
+      setStartingRun(false);
+    }
+  }
+  async function startRun(
+    target = p,
+    mode?: Attempt["mode"],
+    initial: Placement[] = [],
+    takeover = false,
   ) {
     if (loading) return;
+    await writes.current;
     invalidateHint();
     const startGeneration = generation.current;
     if (leasePuzzle.current !== target.puzzle_id) stopLease();
-    const claimed = await claim(target);
+    const claimed = await claim(target, takeover);
     if (startGeneration !== generation.current) {
       if (!live.current) stopLease();
       return;
@@ -461,6 +612,10 @@ export default function App({
     if (!claimed) {
       setBlocked(true);
       setMessage(t.conflict);
+      return;
+    }
+    if (store.wasCleared()) {
+      resetFromClear();
       return;
     }
     setBlocked(false);
@@ -471,7 +626,12 @@ export default function App({
     }
     setPuzzle(target);
     setHash(h);
-    const saved = store.read(target, h);
+    const saved =
+      leaseKind.current === "memory"
+        ? store.read(target, h)
+        : await withStorageMutation(() => store.read(target, h));
+    setSelection(null);
+    setMessage("");
     if (
       !mode &&
       saved &&
@@ -479,6 +639,9 @@ export default function App({
     ) {
       const next = {
         ...saved,
+        timer_visible: timerVisible,
+        mode:
+          leaseKind.current === "memory" ? ("practice" as const) : saved.mode,
         state: "playing" as const,
         interrupted: true,
         clock_status:
@@ -489,15 +652,58 @@ export default function App({
       base.current = next.active_elapsed_ms;
       segment.current = performance.now();
       wall.current = Date.now();
-      save(next);
+      await save(next);
     } else {
+      let practiceOnly = false;
+      if (
+        beforeStart &&
+        target.puzzle_id === publication?.entry.puzzle_id &&
+        mode !== "tutorial"
+      ) {
+        const controller = new AbortController();
+        startAbort.current = controller;
+        setCheckingStart(true);
+        try {
+          practiceOnly = await beforeStart(controller.signal);
+        } catch (e) {
+          if (startGeneration === generation.current)
+            setStartFailure(e instanceof DailyStartError ? e.code : "invalid");
+          stopLease();
+          return;
+        } finally {
+          setCheckingStart(false);
+          if (startAbort.current === controller) startAbort.current = null;
+        }
+        if (
+          startGeneration !== generation.current ||
+          !ownsLease(target.puzzle_id)
+        ) {
+          if (!live.current) stopLease();
+          return;
+        }
+        if (store.wasCleared()) {
+          resetFromClear();
+          return;
+        }
+      }
       const next: Attempt = {
         record_version: 1,
         run_id: crypto.randomUUID(),
         puzzle_id: target.puzzle_id,
         puzzle_hash: h,
         rules_version: target.rules_version,
-        mode: mode ?? (playtest && !reviewer ? "practice" : store.mode(target)),
+        mode:
+          mode === "tutorial"
+            ? "tutorial"
+            : mode === "practice" ||
+                practiceOnly ||
+                store.warning ||
+                (playtest && !reviewer) ||
+                publication?.fallback ||
+                publication?.updated ||
+                publication?.manifest.release_status === "delayed"
+              ? "practice"
+              : store.mode(target),
         state: "playing",
         placements: initial,
         active_elapsed_ms: 0,
@@ -507,39 +713,26 @@ export default function App({
         timer_visible: timerVisible,
         started_at_client: new Date().toISOString(),
         finished_at_client: null,
+        undo_history: [],
       };
       base.current = 0;
       segment.current = performance.now();
       wall.current = Date.now();
-      save(next);
-      requestAnimationFrame(() => {
-        if (
-          live.current?.run_id === next.run_id &&
-          live.current.state === "playing"
-        ) {
-          const painted = snapshot()!;
-          base.current = painted.active_elapsed_ms;
-          segment.current = performance.now();
-          wall.current = Date.now();
-          save(painted);
-        }
-      });
+      await save(next);
     }
-    setSelection(null);
-    setHistory([]);
-    setMessage("");
   }
-  function pause() {
+  async function pause() {
     const current = snapshot();
     if (current?.state === "playing") {
       invalidateHint();
-      save({ ...current, state: "paused", interrupted: true });
       setSelection(null);
       setDragView(null);
       drag.current = null;
+      await save({ ...current, state: "paused", interrupted: true });
     }
+    await writes.current;
   }
-  function changePlacement(q: Placement) {
+  async function changePlacement(q: Placement) {
     const current = snapshot();
     if (current?.state !== "playing" || blocked) return;
     const err = placementError(p, current.placements, q);
@@ -548,18 +741,20 @@ export default function App({
       return;
     }
     const placements = commit(p, current.placements, q);
-    setHistory((h) => [...h, current.placements]);
     invalidateHint();
     const done = complete(p, placements);
-    save({
+    setSelection(null);
+    setMessage(done ? t.done : t.placed);
+    const saved = await save({
       ...current,
       placements,
+      undo_history: [...(current.undo_history ?? []), current.placements].slice(
+        -512,
+      ),
       state: done ? "completed" : "playing",
       finished_at_client: done ? new Date().toISOString() : null,
     });
-    setSelection(null);
-    setMessage(done ? t.done : t.placed);
-    if (done) stopLease();
+    if (done && saved) stopLease();
   }
   function select(id: PieceId) {
     if (!playing || blocked) return;
@@ -591,9 +786,15 @@ export default function App({
       (q) => q.piece_id !== selection.piece_id,
     );
     if (placements.length !== current.placements.length) {
-      setHistory((h) => [...h, current.placements]);
       invalidateHint();
-      save({ ...current, placements });
+      save({
+        ...current,
+        placements,
+        undo_history: [
+          ...(current.undo_history ?? []),
+          current.placements,
+        ].slice(-512),
+      });
       setMessage(t.returned);
     }
     setSelection(null);
@@ -606,8 +807,11 @@ export default function App({
       return;
     }
     if (history.length) {
-      save({ ...current, placements: history[history.length - 1] });
-      setHistory(history.slice(0, -1));
+      save({
+        ...current,
+        placements: history[history.length - 1],
+        undo_history: history.slice(0, -1),
+      });
       invalidateHint();
       setMessage(t.undone);
     }
@@ -616,11 +820,14 @@ export default function App({
     if (a?.state === "playing" || a?.state === "paused") {
       if (!confirm(t.restartConfirm)) return;
       const old = snapshot()!;
-      save({
-        ...old,
-        state: "abandoned",
-        finished_at_client: new Date().toISOString(),
-      });
+      if (
+        !(await save({
+          ...old,
+          state: "abandoned",
+          finished_at_client: new Date().toISOString(),
+        }))
+      )
+        return;
     }
     await start(p, "practice");
   }
@@ -662,7 +869,7 @@ export default function App({
         setMessage(t.hintFail);
       }
     };
-    w.onmessage = (e) => {
+    w.onmessage = async (e) => {
       if (e.data.ready === true) {
         clearTimeout(deadline);
         if (token === generation.current) deadline = setTimeout(timeout, 2500);
@@ -684,7 +891,7 @@ export default function App({
       const current = snapshot();
       if (current?.state !== "playing") return;
       if (reveal) {
-        save({
+        await save({
           ...current,
           state: "revealed",
           placements: sol,
@@ -732,7 +939,7 @@ export default function App({
     ] as Cell;
   }
   function dragStart(e: ReactPointerEvent, id: PieceId, fromBoard = false) {
-    if (!playing || blocked || e.button !== 0) return;
+    if (!playing || blocked || e.button !== 0 || drag.current) return;
     const current = a.placements.find((q) => q.piece_id === id),
       piece = p.pieces.find((q) => q.id === id)!,
       s =
@@ -795,7 +1002,7 @@ export default function App({
   }
   function endDrag(e: ReactPointerEvent, cancelled = false) {
     const d = drag.current;
-    if (!d) return;
+    if (!d || d.pointerId !== e.pointerId) return;
     drag.current = null;
     setDragView(null);
     if (d.active) {
@@ -889,10 +1096,41 @@ export default function App({
             ? locale === "ja"
               ? "未承認候補 · PC内の試遊"
               : "Unapproved candidate · Local trial"
-            : playtest
-              ? t.playtestEdition
-              : t.edition}
+            : publication
+              ? `${publication.entry.edition_utc} · ${import.meta.env.VITE_STAGE === "daily" ? (locale === "ja" ? "日替わりパズル" : "Daily puzzle") : locale === "ja" ? "日次のローカル検証版" : "Local daily preview"}`
+              : playtest
+                ? t.playtestEdition
+                : t.edition}
         </div>
+        {publication && (
+          <p className="local-note" role="status">
+            {publicationUnavailable
+              ? locale === "ja"
+                ? "この画面の問題では、新しい挑戦を開始できません。"
+                : "New attempts on this puzzle are unavailable."
+              : publication.updated
+                ? locale === "ja"
+                  ? "新しい問題が公開されています。この画面の問題で新しく遊ぶ場合は練習になります。"
+                  : "A new puzzle is available. New attempts on this screen are practice."
+                : publication.fallback ||
+                    publication.manifest.release_status === "delayed"
+                  ? locale === "ja"
+                    ? `${publication.entry.edition_utc}版の取得済み問題です。新しい挑戦は練習になります。`
+                    : `Cached edition ${publication.entry.edition_utc}. New attempts are practice.`
+                  : import.meta.env.VITE_STAGE === "daily"
+                    ? locale === "ja"
+                      ? "世界共通、毎日ひとつの箱。"
+                      : "One shared puzzle, every day."
+                    : locale === "ja"
+                      ? "日次配信のローカル検証用です。一般公開ではありません。"
+                      : "Local daily delivery preview. This is not a public release."}
+            {publication.manifest.next_update_at &&
+              !publication.fallback &&
+              !publication.updated &&
+              !publicationUnavailable &&
+              ` ${locale === "ja" ? "更新予定" : "Scheduled update"}: ${new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(publication.manifest.next_update_at))}`}
+          </p>
+        )}
         {!a ? (
           <section className="welcome">
             <div className="intro-art" aria-hidden="true">
@@ -924,7 +1162,7 @@ export default function App({
             <p className="goal">{t.goal}</p>
             <button
               className="primary start"
-              disabled={loading || hintBusy}
+              disabled={loading || hintBusy || startingRun}
               onClick={() => void start()}
             >
               {loading ? t.wait : t.start}
@@ -933,7 +1171,7 @@ export default function App({
             {!reviewer && (
               <button
                 className="text-button"
-                disabled={loading || hintBusy}
+                disabled={loading || hintBusy || startingRun}
                 onClick={tutorial}
               >
                 {t.tutorial} →
@@ -943,12 +1181,21 @@ export default function App({
               <input
                 type="checkbox"
                 checked={timerVisible}
-                onChange={(e) => setTimerVisible(e.target.checked)}
+                onChange={(e) => {
+                  setTimerVisible(e.target.checked);
+                  store.setPreferences(e.target.checked, reduce);
+                }}
               />
               {t.timer}
             </label>
             <p className="local-note">
-              {playtest ? t.playtestNote : t.localOnly}
+              {publication && import.meta.env.VITE_STAGE === "daily"
+                ? locale === "ja"
+                  ? "登録不要。時間を気にせず遊ぶこともできます。"
+                  : "No sign-up. Play without the timer if you prefer."
+                : playtest
+                  ? t.playtestNote
+                  : t.localOnly}
             </p>
           </section>
         ) : (
@@ -976,13 +1223,19 @@ export default function App({
                 <span>Ⅱ</span>
                 <h2>{t.paused}</h2>
                 <p>{t.pauseText}</p>
-                <button className="primary" onClick={() => void start()}>
+                <button
+                  className="primary"
+                  disabled={startingRun}
+                  onClick={() => void start()}
+                >
                   {t.resume} →
                 </button>
               </div>
             ) : (
               <>
-                <div className="board-wrap">
+                <div
+                  className={`board-wrap${a.state === "completed" ? " completed" : ""}`}
+                >
                   <div
                     className="board"
                     ref={board}
@@ -1016,6 +1269,7 @@ export default function App({
                           onPointerMove={moveDrag}
                           onPointerUp={(e) => endDrag(e)}
                           onPointerCancel={(e) => endDrag(e, true)}
+                          onLostPointerCapture={(e) => endDrag(e, true)}
                           onClick={() => {
                             if (suppressClick.current) return;
                             if (selection)
@@ -1065,6 +1319,7 @@ export default function App({
                         onPointerMove={moveDrag}
                         onPointerUp={(e) => endDrag(e)}
                         onPointerCancel={(e) => endDrag(e, true)}
+                        onLostPointerCapture={(e) => endDrag(e, true)}
                       >
                         <Mini piece={piece} rotation={r} />
                         <span className="piece-caption">
@@ -1080,12 +1335,15 @@ export default function App({
             {playing && (
               <>
                 <div className="status" role="status">
-                  {message ||
-                    (selection
-                      ? `${t.selected}: ${selection.piece_id} · ${t.origin}`
-                      : a.mode === "tutorial"
-                        ? t.tutorialText
-                        : t.ready)}
+                  {(selection
+                    ? `${t.selected}: ${selection.piece_id} · ${invalid ? t[invalid] : t.legal} `
+                    : "") +
+                    (message ||
+                      (selection
+                        ? `${t.selected}: ${selection.piece_id} · ${t.origin}`
+                        : a.mode === "tutorial"
+                          ? t.tutorialText
+                          : t.ready))}
                 </div>
                 <div className="controls">
                   <button disabled={!selection || blocked} onClick={doRotate}>
@@ -1160,17 +1418,35 @@ export default function App({
                         : t.practice}
                   </span>
                 </div>
-                {!reviewer && sixtyTag(a) && <p className="badge">{t.sixty}</p>}
+                {!reviewer && a.timer_visible && sixtyTag(a) && (
+                  <p className="badge">{t.sixty}</p>
+                )}
                 <p className="local-note">{t.noOfficial}</p>
               </div>
             )}
             <div className="bottom-actions">
-              {playtest &&
-                !reviewer &&
+              {!reviewer &&
                 a.state === "completed" &&
-                a.mode === "practice" &&
-                p.puzzle_id === publicPracticeId && (
-                  <ShareResult attempt={a} locale={locale} />
+                startFailure !== "withdrawn" &&
+                startFailure !== "missing" &&
+                !publicationUnavailable &&
+                ((publication && p.puzzle_id === publication.entry.puzzle_id) ||
+                  (playtest &&
+                    a.mode === "practice" &&
+                    p.puzzle_id === publicPracticeId)) && (
+                  <ShareResult
+                    attempt={a}
+                    locale={locale}
+                    published={publication?.entry}
+                  />
+                )}
+              {ended &&
+                publication &&
+                publication.entry.puzzle_id !==
+                  publication.manifest.active.puzzle_id && (
+                  <a className="text-button" href={`/${locale}/`}>
+                    {locale === "ja" ? "今日の問題へ" : "Go to today's puzzle"}
+                  </a>
                 )}
               {reviewer && a.state === "abandoned" && (
                 <p role="status">
@@ -1207,12 +1483,12 @@ export default function App({
                       if (!current) return;
                       if (
                         ["playing", "paused"].includes(current.state) &&
-                        !save({
+                        !(await save({
                           ...current,
                           state: "abandoned",
                           interrupted: true,
                           finished_at_client: new Date().toISOString(),
-                        })
+                        }))
                       )
                         return;
                       invalidateHint();
@@ -1246,7 +1522,7 @@ export default function App({
                     : "text-button"
                 }
                 onClick={() => void practice()}
-                disabled={blocked}
+                disabled={blocked || startingRun}
               >
                 {t.restart} →
               </button>
@@ -1266,10 +1542,44 @@ export default function App({
             </div>
           </section>
         )}
+        {checkingStart && (
+          <p role="status">
+            {locale === "ja"
+              ? "公開状態を確認しています…"
+              : "Checking puzzle availability…"}
+          </p>
+        )}
+        {startFailure && (
+          <p role="alert" className="notice">
+            {startFailure === "withdrawn"
+              ? locale === "ja"
+                ? "この問題は公開を取り下げました。新しい挑戦は開始できません。"
+                : "This puzzle has been withdrawn. New attempts are unavailable."
+              : startFailure === "missing"
+                ? locale === "ja"
+                  ? "この問題は現在公開されていません。新しい挑戦は開始できません。"
+                  : "This puzzle is no longer listed. New attempts are unavailable."
+                : locale === "ja"
+                  ? "公開状態を確認できませんでした。もう一度、開始操作で再確認してください。"
+                  : "Could not verify puzzle availability. Try starting again to recheck."}
+          </p>
+        )}
+        {publication &&
+          (startFailure || publication.updated || publicationUnavailable) && (
+            <p>
+              <a className="navigation-link" href={`/${locale}/`}>
+                {locale === "ja"
+                  ? "公開中の問題を確認"
+                  : "Check available puzzles"}
+              </a>
+            </p>
+          )}
         {blocked && (
           <div className="notice" role="alert">
             <p>{t.conflict}</p>
-            <button onClick={() => void start()}>{t.resume}</button>
+            <button onClick={() => void start(p, undefined, [], true)}>
+              {t.takeover}
+            </button>
           </div>
         )}
         {store.warning && (
@@ -1277,14 +1587,17 @@ export default function App({
             {t.noSave}
           </p>
         )}
-        {playtest &&
-          !reviewer &&
-          initialPuzzle.puzzle_id === publicPracticeId && (
+        {!reviewer &&
+          (publication ||
+            (playtest && initialPuzzle.puzzle_id === publicPracticeId)) && (
             <RecentAttempts
               puzzle={initialPuzzle}
               locale={locale}
               timerVisible={timerVisible}
               onOpen={pause}
+              manifest={publication?.manifest}
+              loadEntries={historyEntries}
+              currentEntry={publication?.entry}
             />
           )}
         <footer>
@@ -1311,9 +1624,13 @@ export default function App({
             checked={timerVisible}
             onChange={(e) => {
               setTimerVisible(e.target.checked);
+              store.setPreferences(e.target.checked, reduce);
               const cur = snapshot();
               if (cur) {
-                if (["playing", "paused"].includes(cur.state))
+                if (
+                  ["playing", "paused"].includes(cur.state) &&
+                  ownsLease(p.puzzle_id)
+                )
                   save({ ...cur, timer_visible: e.target.checked });
                 else update({ ...cur, timer_visible: e.target.checked });
               }
@@ -1325,7 +1642,10 @@ export default function App({
           <input
             type="checkbox"
             checked={reduce}
-            onChange={(e) => setReduce(e.target.checked)}
+            onChange={(e) => {
+              setReduce(e.target.checked);
+              store.setPreferences(timerVisible, e.target.checked);
+            }}
           />
           {t.motion}
         </label>
@@ -1333,14 +1653,23 @@ export default function App({
         {!reviewer && (
           <button
             className="danger"
-            onClick={() => {
+            onClick={async () => {
               if (confirm(t.clearConfirm)) {
+                await writes.current;
+                if (fallback.current)
+                  await fallback.current.clear(() => store.clear());
+                else {
+                  try {
+                    await withStorageMutation(() => store.clear());
+                  } catch {
+                    store.useMemoryOnly();
+                    store.clear();
+                  }
+                }
                 invalidateHint();
                 stopLease();
-                store.clear();
                 update(null);
                 setSelection(null);
-                setHistory([]);
                 setPuzzle(initialPuzzle);
                 setSettings(false);
               }

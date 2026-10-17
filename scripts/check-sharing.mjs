@@ -151,7 +151,7 @@ try {
           assert.equal(records[0].mode, "practice");
           hashes.add(records[0].puzzle_hash);
           const shareButton = page.getByRole("button", {
-            name: ja ? "この問題を友達に送る" : "Send this puzzle to a friend",
+            name: ja ? "Xに投稿" : "Post to X",
             exact: true,
           });
           await shareButton.click();
@@ -159,9 +159,36 @@ try {
             preview = dialog.locator("textarea"),
             status = dialog.getByRole("status");
           const text = await preview.inputValue();
-          assert.ok(text.endsWith(publicOrigin + path));
+          assert.ok(text.endsWith(origin + path));
           assert.ok(!text.includes(records[0].run_id));
           assert.doesNotMatch(text, /placements|rotation|puzzle_hash|run_id/);
+          const post = dialog.getByRole("link", {
+            name: ja ? "Xに投稿" : "Post to X",
+            exact: true,
+          });
+          const intent = new URL(await post.getAttribute("href"));
+          assert.equal(intent.origin, "https://x.com");
+          assert.equal(intent.pathname, "/intent/tweet");
+          assert.equal(
+            intent.searchParams.get("text"),
+            text.slice(0, -(origin + path).length - 1),
+          );
+          assert.equal(intent.searchParams.get("url"), origin + path);
+          assert.equal(await post.getAttribute("rel"), "noopener noreferrer");
+          // Intercept locally: never contact X or publish during automated checks.
+          await context.route("https://x.com/**", (route) =>
+            route.fulfill({
+              contentType: "text/html",
+              body: "<title>Mock X composer</title>",
+            }),
+          );
+          const pendingComposer = context.waitForEvent("page");
+          await post.click();
+          const composer = await pendingComposer;
+          await composer.waitForLoadState();
+          assert.equal(composer.url(), intent.href);
+          await composer.close();
+          await context.unroute("https://x.com/**");
           await dialog
             .getByRole("button", {
               name: ja ? "共有先を選ぶ" : "Choose a share destination",
@@ -189,7 +216,7 @@ try {
             )
             .waitFor();
           const data = await page.evaluate(() => window.sharedData);
-          assert.equal(data.url, publicOrigin + path);
+          assert.equal(data.url, origin + path);
           assert.deepEqual(Object.keys(data).sort(), ["text", "title", "url"]);
           await page.evaluate(() => {
             window.shareOutcome = "failure";
@@ -268,6 +295,13 @@ try {
             0,
           );
           const hiddenTimeText = await preview.inputValue();
+          const hiddenIntent = new URL(await post.getAttribute("href"));
+          assert.doesNotMatch(
+            hiddenIntent.searchParams.get("text"),
+            /\d+(?:\.\d+)?秒|seconds|placements|run_id/,
+          );
+          assert.equal(hiddenIntent.searchParams.get("url"), origin + path);
+
           assert.doesNotMatch(hiddenTimeText, /\d+(?:\.\d+)?秒|seconds/);
           const pending = page.waitForEvent("download");
           await dialog
@@ -372,7 +406,7 @@ try {
             }),
           );
           lines.push(
-            `${name} ${locale}: static locale/canonical/OG, shared fixed URL and completion, mock share cancel/handoff/failure, clipboard fallback/success, hidden-time PNG and image fallback, 4 widths, language/next-day hash stability PASS`,
+            `${name} ${locale}: static locale/canonical/OG, shared fixed URL and completion, mocked X composer text/URL/hidden time, mock share cancel/handoff/failure, clipboard fallback/success, hidden-time PNG and image fallback, 4 widths, language/next-day hash stability PASS`,
           );
           console.log(`${name} ${locale}: fixed route and sharing checks PASS`);
         } finally {

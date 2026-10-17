@@ -25,7 +25,7 @@ npm run promote:playtest -- <buildが表示した64文字のdigest>
 npm run check:playtest -- https://onebox.formflow-ops.com
 ```
 
-公開前はallowlist/PRIVATE検査、型検査、ブラウザー確認を行う。`promote`はdigest一致を検査し、不変releaseへ保存して `var/current` を原子的に切り替える。旧ハッシュ付きJS/CSS/Workerは `var/assets` に保持し、読み込み済みタブから利用できる。日次問題のrelease.json/manifestはまだない。問題の内容変更は新しいIDで行う。
+公開前はallowlist/PRIVATE検査、型検査、ブラウザー確認を行う。`promote`はdigest一致を検査し、不変releaseへ保存して `var/current` を原子的に切り替える。旧ハッシュ付きJS/CSS/Workerは `var/assets` に保持し、読み込み済みタブから利用できる。固定practiceのrelease.jsonとhash付き問題JSONを配信する。正式日次への接続は未完了。問題の内容変更は新しいIDで行う。
 
 2026-10-13以降はビルド時に日英トップ/固定ページのHTMLと、汎用紹介PNGも生成する。PNGはブランド文字と4色矩形だけで解答を含まない。公開allowlistはこの5つのHTML・JS/CSS・hash付きonebox-cover PNGへ限定。PNGも旧assetsと同様に保持する。新しいビルドは `npm run check:sharing`、反映後は `npm run check:sharing -- https://onebox.formflow-ops.com` で固定URLと共有/画像の経路も検査する。
 
@@ -64,3 +64,7 @@ HTMLはno-cache/no-transform、ハッシュ付きassetsはimmutable。CSPはス�
 根拠: [Cloudflare Web Analytics FAQ](https://developers.cloudflare.com/web-analytics/faq/)、[Google tag gateway](https://developers.cloudflare.com/google-tag-gateway/)。後者はsubdomain単位のConfiguration Rulesでtag injectionを無効化できないと記載。共用zoneの設定変更は既存サービスへ影響するため行っていない。正式公開前に完全なタグ非挿入を満たす配信経路を再検討する。
 
 アプリはプレイ記録をサーバーへ送らない。配信事業者のアクセスログ・ネットワーク診断は別であり、IPを一切扱わないとは表示しない。originはアクセス/操作の個別ログを保存しない。トンネル接続ログはローカルvar内に保持する。
+
+## 修正後の通常反映（2026-10-17 最新指示）
+
+ユーザーの継続許可により、修正後は毎回検証した同じ生成物を本番へ反映し、HTTPSの開始/完遂・日英・固定URL・manifest/JSON/hashと変更機能を確認する。改めて公開承認を求めない。固定practiceの品質境界を維持し、合成daily-previewをpromoteしない。課金/破壊操作/他サービスへ影響するDNS変更等の別確認は継続する。

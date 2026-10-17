@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { once } from "node:events";
 import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import {
   PrivateStore,
@@ -34,7 +35,10 @@ await store.mutate((c) =>
   ),
 );
 const before = digest(await store.read());
-const server = createReviewerServer(store);
+const server = createReviewerServer(
+  store,
+  resolve(process.env.ONEBOX_REVIEW_CHECK_ROOT ?? "var/reviewer"),
+);
 server.listen(0, "127.0.0.1");
 await once(server, "listening");
 const origin = `http://127.0.0.1:${(server.address() as { port: number }).port}`;

@@ -88,6 +88,7 @@ export class PrivateStore {
     }
   }
   async mutate<T>(operation: (catalog: Catalog) => Promise<T> | T): Promise<T> {
+    await directory(resolve(project, "content"));
     await directory(privateRoot);
     await directory(resolve(privateRoot, "curation"));
     await directory(this.dir);

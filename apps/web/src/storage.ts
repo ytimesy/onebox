@@ -3,6 +3,10 @@ import {
   type Puzzle,
   validateAttempt,
 } from "../../../packages/game-core";
+import {
+  validatePublishedPuzzle,
+  type PublishedProblem,
+} from "../../../packages/game-core/release";
 const prefix = "onebox:v1:";
 export class Store {
   warning = false;
@@ -50,17 +54,38 @@ export class Store {
   }
   private set(k: string, v: string) {
     this.memory.set(k, v);
-    if (this.ephemeral) return;
+    if (this.ephemeral) return true;
     try {
       localStorage.setItem(prefix + k, v);
       this.unsaved.delete(k);
+      return true;
     } catch {
       this.unsaved.add(k);
       this.warning = true;
+      return false;
     }
   }
   firstKey(p: Puzzle) {
     return `first:${p.puzzle_id}:${p.rules_version}`;
+  }
+  preferences(): { timer_visible?: boolean; reduce_motion?: boolean } {
+    const raw = this.get("preferences");
+    if (!raw) return {};
+    try {
+      const v = JSON.parse(raw);
+      if (
+        typeof v.timer_visible !== "boolean" ||
+        typeof v.reduce_motion !== "boolean"
+      )
+        throw Error();
+      return { timer_visible: v.timer_visible, reduce_motion: v.reduce_motion };
+    } catch {
+      this.warning = true;
+      return {};
+    }
+  }
+  setPreferences(timer_visible: boolean, reduce_motion: boolean) {
+    this.set("preferences", JSON.stringify({ timer_visible, reduce_motion }));
   }
   read(p: Puzzle, hash: string): Attempt | null {
     this.wasCleared();
@@ -69,18 +94,21 @@ export class Store {
     try {
       return validateAttempt(JSON.parse(raw), p, hash);
     } catch {
-      this.set(`quarantine:${p.puzzle_id}`, raw);
-      this.remove(`current:${p.puzzle_id}`);
+      // Corruption must not reissue a first attempt on the next page load.
+      if (!this.get(this.firstKey(p))) this.set(this.firstKey(p), "unverified");
+      // Never destroy the only durable copy if quarantine cannot be saved.
+      if (this.set(`quarantine:${p.puzzle_id}:${crypto.randomUUID()}`, raw))
+        this.remove(`current:${p.puzzle_id}`);
       this.warning = true;
       return null;
     }
   }
   mode(p: Puzzle): "first" | "practice" {
     this.wasCleared();
-    return this.get(this.firstKey(p)) ? "practice" : "first";
+    const first = this.get(this.firstKey(p));
+    return first || this.warning ? "practice" : "first";
   }
-  recent(p: Puzzle, hash: string): Attempt[] {
-    this.wasCleared();
+  private runRecords(): Array<{ key: string; value: Attempt }> {
     // Enumerate only our run records. Successful storage reads remain authoritative
     // after another tab deletes records; unsaved writes still use the memory copy.
     const keys = new Set(this.memory.keys());
@@ -92,36 +120,104 @@ export class Store {
         this.warning = true;
       }
     }
-    const attempts: Attempt[] = [];
+    const records: Array<{ key: string; value: Attempt }> = [];
     for (const k of keys) {
       if (!k.startsWith("run:")) continue;
       const raw = this.get(k);
       if (!raw) continue;
       try {
         const value = JSON.parse(raw);
-        // Other problems (including private trials/tutorials) are outside this view.
-        if (value?.puzzle_id !== p.puzzle_id) continue;
-        const a = validateAttempt(value, p, hash);
-        if (a.run_id !== k.slice(4)) throw Error("Invalid record key");
-        if (a.mode === "tutorial") continue;
-        const terminal = ["completed", "revealed", "abandoned"].includes(
-          a.state,
-        );
-        if (terminal !== (a.finished_at_client !== null))
-          throw Error("Invalid record state");
-        attempts.push(a);
+        if (!value || typeof value !== "object") throw Error("Invalid record");
+        records.push({ key: k, value });
       } catch {
         // History is read-only: exclude damaged records without deleting originals.
         this.warning = true;
       }
     }
-    return attempts
-      .sort(
-        (a, b) =>
-          Date.parse(b.started_at_client) - Date.parse(a.started_at_client) ||
-          b.run_id.localeCompare(a.run_id),
-      )
-      .slice(0, 7);
+    return records.sort(
+      (a, b) =>
+        (Date.parse(b.value.started_at_client) || 0) -
+          (Date.parse(a.value.started_at_client) || 0) ||
+        b.key.localeCompare(a.key),
+    );
+  }
+  private historyAttempt(value: Attempt, key: string, p: Puzzle, hash: string) {
+    const a = validateAttempt(value, p, hash);
+    if (a.run_id !== key.slice(4)) throw Error("Invalid record key");
+    const terminal = ["completed", "revealed", "abandoned"].includes(a.state);
+    if (terminal !== (a.finished_at_client !== null))
+      throw Error("Invalid record state");
+    return a;
+  }
+  recent(p: Puzzle, hash: string): Attempt[] {
+    this.wasCleared();
+    const attempts: Attempt[] = [];
+    for (const { key, value } of this.runRecords()) {
+      if (value.puzzle_id !== p.puzzle_id || value.mode === "tutorial")
+        continue;
+      try {
+        attempts.push(this.historyAttempt(value, key, p, hash));
+      } catch {
+        this.warning = true;
+      }
+    }
+    return attempts.slice(0, 7);
+  }
+  async recentPublished(
+    entries: PublishedProblem[],
+    load: (entry: PublishedProblem) => Promise<Puzzle>,
+  ): Promise<{ records: Attempt[]; unavailable: boolean }> {
+    this.wasCleared();
+    const generation = this.clearGeneration;
+    const allowed = new Map(
+      entries
+        .filter((e) => e.purpose === "production_daily")
+        .map((e) => [e.puzzle_id, e]),
+    );
+    const puzzles = new Map<string, Puzzle | null>();
+    const records: Attempt[] = [];
+    let unavailable = false;
+    for (const { key, value } of this.runRecords()) {
+      const entry = allowed.get(value.puzzle_id);
+      if (!entry || value.mode === "tutorial") continue;
+      if (value.puzzle_hash !== entry.sha256) {
+        this.warning = true;
+        continue;
+      }
+      if (!puzzles.has(entry.puzzle_id)) {
+        try {
+          puzzles.set(
+            entry.puzzle_id,
+            await validatePublishedPuzzle(await load(entry), entry),
+          );
+        } catch {
+          puzzles.set(entry.puzzle_id, null);
+          unavailable = true;
+        }
+      }
+      const p = puzzles.get(entry.puzzle_id);
+      if (!p) continue;
+      // Loading a payload may yield to deletion in this or another tab.
+      this.wasCleared();
+      if (generation !== this.clearGeneration)
+        return { records: [], unavailable: false };
+      const latest = this.get(key);
+      if (!latest) continue;
+      try {
+        const a = this.historyAttempt(JSON.parse(latest), key, p, entry.sha256);
+        if (a.mode !== "tutorial") records.push(a);
+      } catch {
+        this.warning = true;
+      }
+      if (records.length === 7) break;
+    }
+    this.wasCleared();
+    if (generation !== this.clearGeneration)
+      return { records: [], unavailable: false };
+    return {
+      records: records.filter((a) => this.get(`run:${a.run_id}`) !== null),
+      unavailable,
+    };
   }
   save(a: Attempt) {
     if (this.wasCleared()) return false;
@@ -175,7 +271,6 @@ export class Store {
           const raw = localStorage.getItem(k);
           if (
             k === prefix + `current:${pid}` ||
-            k.startsWith(prefix + `first:${pid}:`) ||
             (k.startsWith(prefix + "run:") &&
               raw &&
               JSON.parse(raw).puzzle_id === pid)

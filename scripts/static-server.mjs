@@ -3,6 +3,8 @@ import { readFile, realpath, access } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { publicRoute } from "../packages/game-core/public-route.ts";
+import { checkProductionSite } from "./production-release.mjs";
+import { serveProduction } from "./production-http.mjs";
 const project = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const root = resolve(process.env.ONEBOX_SERVE_ROOT ?? `${project}/var/current`);
 const assetRoot = resolve(
@@ -24,6 +26,7 @@ const headers = {
   "X-Robots-Tag": "noindex, nofollow, noarchive",
   "Cache-Control": "public, no-cache, no-transform",
 };
+let productionPath, productionCheck;
 const server = createServer(async (req, res) => {
   for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
   const localPort = server.address().port;
@@ -53,6 +56,41 @@ const server = createServer(async (req, res) => {
     res.writeHead(400);
     res.end();
     return;
+  }
+  try {
+    const actual = await realpath(root);
+    const manifest = JSON.parse(
+      await readFile(resolve(actual, "release.json"), "utf8"),
+    );
+    if (
+      manifest.stage === "daily" ||
+      actual.startsWith(resolve(project, "var/production/snapshots") + sep)
+    ) {
+      if (productionPath !== actual) {
+        productionPath = actual;
+        productionCheck = checkProductionSite(actual);
+      }
+      const info = await productionCheck;
+      await serveProduction(
+        req,
+        res,
+        pathname,
+        search,
+        actual,
+        assetRoot,
+        info,
+      );
+      return;
+    }
+  } catch (error) {
+    if (productionPath || error.code !== "ENOENT") {
+      res.writeHead(503, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store",
+      });
+      res.end(req.method === "HEAD" ? undefined : "Release unavailable");
+      return;
+    }
   }
   if (pathname === "/health") {
     let healthy = true;

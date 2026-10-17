@@ -191,3 +191,54 @@ describe("attempt integrity and boundaries", () => {
       expect(() => validateAttempt(a, p, "hash")).toThrow();
   });
 });
+
+it("restores legacy v1 attempts and validates optional undo snapshots without losing assistance flags", () => {
+  const old = attempt({
+    state: "paused",
+    placements: answer.slice(0, 1),
+    finished_at_client: null,
+    hint_count: 2,
+    interrupted: true,
+  });
+  expect(validateAttempt(old, p, "hash")).toEqual(old);
+  const next = { ...old, undo_history: [[], answer.slice(0, 2)] };
+  expect(validateAttempt(next, p, "hash")).toEqual(next);
+  for (const undo_history of [
+    [null],
+    [[answer[0], answer[0]]],
+    Array(513).fill([]),
+    [[{ ...answer[0], x: NaN }]],
+  ])
+    expect(() =>
+      validateAttempt({ ...old, undo_history }, p, "hash"),
+    ).toThrow();
+});
+it("accepts each distinct legal solution of a multiple-solution puzzle independently of the stored answer", () => {
+  const input = json("negative_multiple.json");
+  input.puzzle_id = "multiple-regression";
+  input.purpose = "design_verification_only";
+  const puzzle = validatePuzzle(input),
+    result = solve(puzzle);
+  expect(result.count).toBe(2);
+  expect(result.solutions[0]).not.toEqual(result.solutions[1]);
+  for (const legal of result.solutions)
+    expect(complete(puzzle, legal)).toBe(true);
+  const chiral = p.pieces.find((piece) =>
+    orientations(piece.cells).every(
+      (q) =>
+        JSON.stringify(q.cells) !==
+        JSON.stringify(
+          rotate(
+            piece.cells.map(([x, y]) => [-x, y]),
+            0,
+          ),
+        ),
+    ),
+  );
+  expect(chiral).toBeDefined();
+});
+
+it("does not award an achievement for an invalid elapsed value", () => {
+  for (const ms of [-1, NaN, Infinity])
+    expect(sixtyTag(attempt({ active_elapsed_ms: ms }))).toBe(false);
+});

@@ -2,7 +2,9 @@
 
 4つの形を、ひとつの箱に。登録不要の箱詰めパズル。
 
-現在は固定問題を試す公開版です。このPCから [公開URL](https://onebox.formflow-ops.com/ja/) を配信しています（[English](https://onebox.formflow-ops.com/en/)）。[同じ問題の固定URL](https://onebox.formflow-ops.com/ja/p/playtest-fixed-v1/) と、完成後の共有確認・リンクコピー・結果画像保存、端末内の直近7回の記録を利用できます。日次配信は準備中。品質30問・実機確認・正式日次版の本番受入は残しています。
+日替わり版を、このPCから [公開URL](https://onebox.formflow-ops.com/ja/) へ配信しています（[English](https://onebox.formflow-ops.com/en/)）。毎日UTC00:00（日本時間09:00）以降に専用ローカルジョブで更新します。特定問題の固定URL、完成後のX投稿内容確認・リンクコピー・結果画像保存、端末内の直近7回の記録を利用できます。[以前の固定練習問題](https://onebox.formflow-ops.com/ja/p/playtest-fixed-v1/) も保持しています。
+
+2026-10-17のユーザー決定により、人間の試遊を公開前条件から外し、機械検証済み問題で公開しています。人間による難易度評価・実機確認は未実施です。PC停止/スリープ中の定時更新と新規アクセス継続は保証しません。公開結果・起動/復旧・残件は [正式公開の記録](docs/DAILY_PRODUCTION_EVIDENCE_20261017.md) と [運用手順](docs/OPERATIONS.md) を参照してください。
 
 ## 起動と確認
 
@@ -32,7 +34,7 @@ E2Eは1ワーカーで実行。実物のiPhone/Android、VoiceOver/TalkBack、�
 
 ## 非公開候補のPC試遊
 
-このPCで [候補試遊画面](http://localhost:4324/) を開き、候補を選んで遊べます。公開サイトとは別のローカル経路です。候補5問は未承認。実機スマートフォンの候補試遊と30問の品質確認は残っています。
+このPCで [候補試遊画面](http://localhost:4324/) を開き、候補を選んで遊べます。公開サイトとは別のローカル経路です。人間の試遊・編集承認は任意の確認として利用できます。正式公開は、機械検証ポリシーと別のPRIVATE公開履歴で運用しています。
 
 ```sh
 npm run build:reviewer
@@ -68,12 +70,12 @@ node scripts/check-stock-live.ts
 - `docs/M1_EVIDENCE.md`: 検証証跡と未確認。
 - `packages/game-core/`: UI共通の純粋な幾何学判定、検査、ヒント用ソルバー。
 - `packages/puzzle-tools/`: 非公開の小規模候補生成・一意性検証CLI。利用と独立照合の証跡は `docs/M2_EVIDENCE.md`。
-- `npm run curate -- ...`: 非公開の幾何学重複・試遊/編集/公開待ち管理。手順と検証範囲は `docs/T21_EVIDENCE.md`。候補5問は未承認であり、正式日次版のストックではありません。
+- `npm run curate -- ...`: 非公開の幾何学重複・試遊/編集/公開待ち管理。手順と検証範囲は `docs/T21_EVIDENCE.md`。人間による編集承認と、正式日次の機械検証ポリシーは別に記録します。
 - `apps/web/`: 日英UI、Worker、端末内保存。
 - `tests/e2e/`: 完遂、保存回復、排他、画面幅等。
 - `examples/`、`verification/`: 設計ZIPの開発fixtureと独立Python照合。公開distへコピーしません。
 
-`npm run build` は開発版のdistだけを作ります。PRIVATE解答・30問のバッチ・負例を混ぜないallowlist検査付き。正式な公開ビルド/日次manifest/編集パイプラインはM2〜M4で追加します。
+`npm run build` は開発版のdistだけを作ります。PRIVATE解答・30問のバッチ・負例を混ぜないallowlist検査付き。正式日次の状態は `npm run production -- status`、公開検査は `npm run check:production -- var/current https://onebox.formflow-ops.com`。ビルド・配備・復旧は運用手順を参照してください。
 
 試遊の更新・常駐・復旧: `docs/PLAYTEST_OPERATIONS.md`。検証結果と未確認: `docs/PLAYTEST_EVIDENCE.md`。
 
@@ -81,14 +83,14 @@ node scripts/check-stock-live.ts
 
 ```sh
 npm run check:sharing
-npm run check:sharing -- https://onebox.formflow-ops.com
 npm run check:history
-npm run check:history -- https://onebox.formflow-ops.com
 ```
 
 ローカル検査は検証用の配信を自動起動して終了時に停止します。共有/clipboardの成否は模擬し、実OSの共有先やクリップボードを書き換えません。利用者の操作ではブラウザー対応に応じた共有、コピー、手動選択を用意します。
 
-履歴はこのブラウザーに残る固定問題のrunを開始日時順に最大7回表示します。練習は1回ずつ数え、操作練習・別問題・壊れた記録を除きます。履歴を開くと進行中のプレイを一時停止します。時間非表示と不確かな時計を尊重し、保存できなければ一時記録の警告を出します。次回の日次配信日時は未定です。検証範囲と残件は `docs/PUBLIC_HISTORY_EVIDENCE.md` と `TASK.md`。
+履歴はこのブラウザーに残る固定問題のrunを開始日時順に最大7回表示します。練習は1回ずつ数え、操作練習・別問題・壊れた記録を除きます。履歴を開くと進行中のプレイを一時停止します。時間非表示と不確かな時計を尊重し、保存できなければ一時記録の警告を出します。日次版ではmanifestの更新予定を現地時刻で表示します。検証範囲と残件は `docs/PUBLIC_HISTORY_EVIDENCE.md` と `TASK.md`。
+
+以下は2026-10-14時点の記録です。現在の正式日次版は本書冒頭の公開状態と運用手順を参照してください。
 
 2026-10-14のバグ修正・残件対応: 公開固定版はrelease.jsonとcanonical JSON/hashを照合してから開始します。初版の自動集計は不採用です。非公開の日次準備は `npm run daily -- status` / `prepare`。準備には有効な品質在庫30問が必要で、現状0問のため停止します。配信commit/定時起動・正式日次UIは未完了。
 
@@ -97,3 +99,24 @@ E2Eは専用4320に毎回新しい開発サーバーを起動し、旧4319のpre
 ## GitHub公開範囲
 
 ソース・仕様・設計用fixtureを公開します。認証情報、`content/private/` の実候補・台帳、`var/`、配信生成物、`evidence/` のローカル証跡、`*.PRIVATE.*` の保存解答はGit対象外です。テスト用解答は上記の準備コマンドで設計fixtureから端末内に再生成します。文書から参照するローカル証跡は、このリポジトリには含みません。
+
+## 固定版と非公開シミュレーションのローカル確認
+
+修正版（Xへの投稿導線を含む）は本番へ反映済みです。以下はローカルでも確認する手順です。差分は [修正計画](docs/REVISION_PLAN_20261017.md)、実測・残件・変更ファイルは [修正報告](docs/REVISION_REPORT_20261017.md)。
+
+```sh
+npm run build:playtest
+ONEBOX_SERVE_ROOT="$PWD/dist-playtest" ONEBOX_PORT=4326 npm run serve:playtest
+```
+
+固定修正版: http://127.0.0.1:4326/ja/ （英語 `/en/`、固定 `/ja/p/playtest-fixed-v1/`）。タップはピース→回転→盤面→置く。ドラッグは掴んだセルを保持、キーボードはTab/Space→盤面の矢印/R/Enter/Esc。再読込→続きを遊ぶ→取消で保存した確定操作を戻せます。ローカル共有リンクはこのPC内用と明記します。利用者の既存記録がある本番originには接続しません。
+
+```sh
+npm run build:daily-preview
+npm run test:daily-preview
+npm run serve:daily-preview
+```
+
+日次シミュレーション: http://127.0.0.1:4327/ja/ （固定 `/ja/p/onebox-2026-10-16/` と `/ja/p/onebox-2026-10-17/`）。合成2版を `evidence/daily-preview/` だけへ生成します。正式な日次公開候補・品質受入済み問題ではなく、実候補台帳や公開releaseへ接続しません。検証は一時コピー内のmanifest切替/復旧・固定URL/hash・撤回/404・通信断完遂・遅延時の練習表示までです。
+
+依存更新なし。lint専用scriptはなく、型検査・既存テスト・変更対象のPrettier確認を使用。実機Safari/Chrome、VoiceOver/TalkBack、実OS共有、人間の試遊は未実施です。正式日次の公開・定時ジョブ・履歴への接続は完了しており、翌日の実時刻更新・物理停止復旧・長期運用の確認が残っています。サーバー停止は起動したターミナルでCtrl+C。保存v1は互換追加のみで、UI変更による初回記録リセットは行いません。

@@ -1,0 +1,146 @@
+[
+  {
+    "schema_version": 1,
+    "rules_version": "onebox-v1",
+    "puzzle_id": "design-daily-extra-0",
+    "purpose": "design_verification_only",
+    "board": {
+      "width": 5,
+      "height": 5,
+      "blocked": [
+        [0, 3],
+        [2, 4],
+        [3, 2],
+        [3, 4],
+        [4, 0]
+      ]
+    },
+    "pieces": [
+      {
+        "id": "A",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 1]
+        ],
+        "initial_rotation": 3,
+        "pattern_id": "dots"
+      },
+      {
+        "id": "B",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [1, 0],
+          [1, 1]
+        ],
+        "initial_rotation": 3,
+        "pattern_id": "stripes"
+      },
+      {
+        "id": "C",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [1, 2],
+          [1, 3]
+        ],
+        "initial_rotation": 0,
+        "pattern_id": "grid"
+      },
+      {
+        "id": "D",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 3]
+        ],
+        "initial_rotation": 1,
+        "pattern_id": "rings"
+      }
+    ],
+    "rules": {
+      "allow_reflection": false,
+      "target_seconds": 60,
+      "allow_overtime": true
+    }
+  },
+  {
+    "schema_version": 1,
+    "rules_version": "onebox-v1",
+    "puzzle_id": "design-daily-extra-1",
+    "purpose": "design_verification_only",
+    "board": {
+      "width": 5,
+      "height": 5,
+      "blocked": [
+        [2, 4],
+        [3, 2],
+        [4, 2],
+        [4, 3],
+        [4, 4]
+      ]
+    },
+    "pieces": [
+      {
+        "id": "A",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 2]
+        ],
+        "initial_rotation": 3,
+        "pattern_id": "dots"
+      },
+      {
+        "id": "B",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [0, 4]
+        ],
+        "initial_rotation": 3,
+        "pattern_id": "stripes"
+      },
+      {
+        "id": "C",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [1, 1],
+          [2, 1],
+          [2, 2]
+        ],
+        "initial_rotation": 2,
+        "pattern_id": "grid"
+      },
+      {
+        "id": "D",
+        "cells": [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 3]
+        ],
+        "initial_rotation": 3,
+        "pattern_id": "rings"
+      }
+    ],
+    "rules": {
+      "allow_reflection": false,
+      "target_seconds": 60,
+      "allow_overtime": true
+    }
+  }
+]

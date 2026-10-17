@@ -32,6 +32,34 @@ async function tapPlace(page: Page, q: Placement) {
     await page.getByRole("button", { name: "回転", exact: false }).click();
   await page.locator(`[data-cell="${q.x},${q.y}"]`).click();
   await page.getByRole("button", { name: "置く", exact: false }).click();
+  // Ownership transactions settle after the optimistic board commit.
+  if (
+    !(await page
+      .locator(".notice")
+      .filter({ hasText: "記録を保存・復元" })
+      .count())
+  )
+    await expect
+      .poll(() =>
+        page.evaluate(
+          ({ id, q }) => {
+            const current = JSON.parse(
+              localStorage.getItem(`onebox:v1:current:${id}`) ?? "null",
+            );
+            return (
+              current?.placements.some(
+                (v: Placement) =>
+                  v.piece_id === q.piece_id &&
+                  v.rotation === q.rotation &&
+                  v.x === q.x &&
+                  v.y === q.y,
+              ) ?? false
+            );
+          },
+          { id: puzzle.puzzle_id, q },
+        ),
+      )
+      .toBe(true);
 }
 async function keyPlace(page: Page, q: Placement) {
   await page.locator(`[data-piece="${q.piece_id}"]`).focus();
@@ -120,17 +148,21 @@ test("invalid placement, undo and hint counts cannot be undone", async ({
   await page.locator('[data-cell="0,0"]').click();
   await page.getByRole("button", { name: "置く", exact: false }).click();
   await expect(page.getByRole("status").first()).toContainText("斜線");
-  expect((await records(page))[0].placements).toHaveLength(0);
+  await expect
+    .poll(async () => (await records(page))[0].placements.length)
+    .toBe(0);
   await page.getByRole("button", { name: "選択を解除" }).click();
   await tapPlace(page, solution[0]);
   await page.getByRole("button", { name: "取消", exact: false }).click();
-  expect((await records(page))[0].placements).toHaveLength(0);
+  await expect
+    .poll(async () => (await records(page))[0].placements.length)
+    .toBe(0);
   await page.getByRole("button", { name: "ヒント", exact: false }).click();
   await expect(page.getByRole("status").first()).toContainText("置き場所");
-  expect((await records(page))[0].hint_count).toBe(1);
+  await expect.poll(async () => (await records(page))[0].hint_count).toBe(1);
   await tapPlace(page, solution[0]);
   await page.getByRole("button", { name: "取消", exact: false }).click();
-  expect((await records(page))[0].hint_count).toBe(1);
+  await expect.poll(async () => (await records(page))[0].hint_count).toBe(1);
 });
 test("reload pauses, hides board, and resumes with interruption; locale preserves puzzle", async ({
   page,
@@ -191,7 +223,7 @@ test("second tab cannot overwrite or start a parallel first run", async ({
   await page.close();
   await second
     .getByRole("alert")
-    .getByRole("button", { name: "続きを遊ぶ" })
+    .getByRole("button", { name: "このタブで続ける" })
     .click();
   await expect(second.locator(".board")).toBeVisible();
   expect((await records(second))[0].placements).toHaveLength(1);
@@ -225,6 +257,7 @@ test("clearing records also cancels a start waiting for a browser lock", async (
   context,
 }) => {
   await page.addInitScript(() => {
+    const actualLocks = navigator.locks;
     const target = window as unknown as {
       releasePendingLock: () => void;
       pendingDone: boolean;
@@ -239,6 +272,11 @@ test("clearing records also cancels a start waiting for a browser lock", async (
           _options: unknown,
           callback: (lock: object) => Promise<void>,
         ) => {
+          if (_name === "onebox-storage-v1")
+            return actualLocks.request(
+              _name,
+              _options as LockGrantedCallback<unknown>,
+            );
           await waiting;
           await callback({});
           target.pendingDone = true;
@@ -446,7 +484,7 @@ test("slow worker download still supplies a hint", async ({ page }) => {
   await expect(page.getByRole("status").first()).toContainText("置き場所", {
     timeout: 8000,
   });
-  expect((await records(page))[0].hint_count).toBe(1);
+  await expect.poll(async () => (await records(page))[0].hint_count).toBe(1);
 });
 test("worker constructor denied leaves the game playable", async ({ page }) => {
   await page.addInitScript(() => {
@@ -485,27 +523,14 @@ test.describe("fallback ownership without Web Locks", () => {
       .click();
     await expect(second.getByRole("alert")).toContainText("別のタブ");
     await page.close();
-    // Firefox may skip pagehide on tab close; the fallback expires within 4s.
-    await expect
-      .poll(
-        () =>
-          second.evaluate(() => {
-            const lease = JSON.parse(
-              localStorage.getItem("onebox:v1:lease:fixture-011") ?? "null",
-            );
-            return !lease || lease.until <= Date.now();
-          }),
-        { timeout: 6000 },
-      )
-      .toBe(true);
     await second
       .getByRole("alert")
-      .getByRole("button", { name: "続きを遊ぶ" })
+      .getByRole("button", { name: "このタブで続ける" })
       .click();
     await expect(second.locator(".board")).toBeVisible();
     expect((await records(second))[0].placements).toHaveLength(1);
   });
-  test("an expired owner cannot overwrite a newer continuation even if storage events are delayed", async ({
+  test("a fenced old owner cannot overwrite an explicit takeover even if storage events are delayed", async ({
     page,
     context,
   }) => {
@@ -538,17 +563,18 @@ test.describe("fallback ownership without Web Locks", () => {
     });
     const second = await context.newPage();
     await second.goto("/");
-    await second.evaluate(() => {
-      const k = "onebox:v1:lease:fixture-011";
-      const lease = JSON.parse(localStorage.getItem(k)!);
-      lease.until = Date.now() - 1;
-      localStorage.setItem(k, JSON.stringify(lease));
-    });
     await second
       .getByRole("button", { name: "続きを遊ぶ →", exact: true })
       .click();
+    await expect(second.getByRole("alert")).toContainText("別のタブ");
+    await second
+      .getByRole("button", { name: "このタブで続ける", exact: true })
+      .click();
     await expect(second.locator(".board")).toBeVisible();
     await tapPlace(second, solution[1]);
+    await expect
+      .poll(async () => (await records(second))[0].placements.length)
+      .toBe(2);
     const current = await second.evaluate(() =>
       JSON.parse(localStorage.getItem("onebox:v1:current:fixture-011")!),
     );
@@ -567,21 +593,9 @@ test.describe("fallback ownership without Web Locks", () => {
       hint_count: current.hint_count,
     });
     await second.close();
-    await expect
-      .poll(
-        () =>
-          page.evaluate(() => {
-            const lease = JSON.parse(
-              localStorage.getItem("onebox:v1:lease:fixture-011") ?? "null",
-            );
-            return !lease || lease.until <= Date.now();
-          }),
-        { timeout: 6000 },
-      )
-      .toBe(true);
     await page
       .getByRole("alert")
-      .getByRole("button", { name: "続きを遊ぶ" })
+      .getByRole("button", { name: "このタブで続ける" })
       .click();
     await expect(page.locator(".board")).toBeVisible();
     expect((await records(page))[0].placements).toHaveLength(2);
@@ -624,4 +638,268 @@ test.describe("short touch viewport", () => {
         fullPage: true,
       });
     });
+});
+
+test("reload restores committed undo history without rolling back hints, time or interruptions", async ({
+  page,
+}) => {
+  await start(page);
+  await tapPlace(page, solution[0]);
+  await page.getByRole("button", { name: "ヒント", exact: false }).click();
+  await expect(page.getByRole("status").first()).toContainText("置き場所");
+  await tapPlace(page, solution[1]);
+  await page.reload();
+  await expect(page.locator(".board")).toHaveCount(0);
+  await page.getByRole("button", { name: "続きを遊ぶ →", exact: true }).click();
+  const before = (await records(page))[0];
+  expect(before.undo_history).toHaveLength(2);
+  await page.getByRole("button", { name: "取消", exact: false }).click();
+  await expect
+    .poll(async () => (await records(page))[0].placements.length)
+    .toBe(1);
+  const after = (await records(page))[0];
+  expect(after.run_id).toBe(before.run_id);
+  expect(after.hint_count).toBe(1);
+  expect(after.interrupted).toBe(true);
+  expect(after.active_elapsed_ms).toBeGreaterThanOrEqual(
+    before.active_elapsed_ms,
+  );
+  await page.getByRole("button", { name: "取消", exact: false }).click();
+  await expect
+    .poll(async () => (await records(page))[0].placements.length)
+    .toBe(0);
+});
+
+test("restart and reveal cancellation preserve the first run; confirmed restart records abandonment", async ({
+  page,
+}) => {
+  await start(page);
+  await tapPlace(page, solution[0]);
+  const first = (await records(page))[0];
+  page.once("dialog", (d) => d.dismiss());
+  await page
+    .getByRole("button", { name: "もう一度練習", exact: false })
+    .click();
+  page.once("dialog", (d) => d.dismiss());
+  await page.getByRole("button", { name: "解答を見る", exact: true }).click();
+  expect((await records(page))[0]).toMatchObject({
+    run_id: first.run_id,
+    state: "playing",
+    placements: first.placements,
+  });
+  page.once("dialog", (d) => d.accept());
+  await page
+    .getByRole("button", { name: "もう一度練習", exact: false })
+    .click();
+  await expect(page.locator(".puzzle-id")).toContainText("練習");
+  await expect.poll(async () => (await records(page)).length).toBe(2);
+  expect(
+    (await records(page)).find((a) => a.run_id === first.run_id),
+  ).toMatchObject({
+    mode: "first",
+    state: "abandoned",
+    placements: first.placements,
+  });
+});
+
+test("lost pointer capture cancels a drag and foreign pointerup does not commit it", async ({
+  page,
+}) => {
+  await start(page);
+  await tapPlace(page, solution[0]);
+  const before = (await records(page))[0];
+  const cell = occupied(puzzle, solution[0])[0],
+    source = page.locator(`[data-cell="${cell}"]`),
+    box = await source.boundingBox();
+  await page.mouse.move(box!.x + 15, box!.y + 15);
+  await page.mouse.down();
+  await page.mouse.move(box!.x + 80, box!.y + 80, { steps: 4 });
+  await expect(page.locator(".drag-ghost")).toBeVisible();
+  await source.dispatchEvent("pointerup", {
+    pointerId: 99,
+    pointerType: "pen",
+  });
+  await expect(page.locator(".drag-ghost")).toBeVisible();
+  await source.dispatchEvent("lostpointercapture", {
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+  await page.mouse.up();
+  await expect(page.locator(".drag-ghost")).toHaveCount(0);
+  expect((await records(page))[0]).toMatchObject({
+    placements: before.placements,
+    undo_history: before.undo_history,
+  });
+});
+
+for (const fallback of [false, true]) {
+  test(`simultaneous first claims use ${fallback ? "IndexedDB" : "Web Locks"} exclusion`, async ({
+    page,
+    context,
+  }) => {
+    if (fallback)
+      await context.addInitScript(() =>
+        Object.defineProperty(navigator, "locks", { value: undefined }),
+      );
+    const second = await context.newPage();
+    await Promise.all([page.goto("/"), second.goto("/")]);
+    await Promise.all([
+      page.getByRole("button", { name: "箱を開く" }).click(),
+      second.getByRole("button", { name: "箱を開く" }).click(),
+    ]);
+    await expect
+      .poll(
+        async () =>
+          (await records(page)).filter((a) => a.mode === "first").length,
+      )
+      .toBe(1);
+    await expect
+      .poll(
+        async () =>
+          (await page.getByRole("alert").count()) +
+          (await second.getByRole("alert").count()),
+      )
+      .toBe(1);
+    expect(await records(page)).toHaveLength(1);
+  });
+}
+
+test("explicit Web Locks takeover stops the original tab and preserves the run", async ({
+  page,
+  context,
+}) => {
+  await start(page);
+  await tapPlace(page, solution[0]);
+  const first = (await records(page))[0],
+    second = await context.newPage();
+  await second.goto("/");
+  await second
+    .getByRole("button", { name: "続きを遊ぶ →", exact: true })
+    .click();
+  await second
+    .getByRole("button", { name: "このタブで続ける", exact: true })
+    .click();
+  await expect(second.locator(".board")).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText("別のタブ");
+  await tapPlace(second, solution[1]);
+  await expect
+    .poll(async () => (await records(second))[0].placements.length)
+    .toBe(2);
+  expect((await records(second))[0]).toMatchObject({
+    run_id: first.run_id,
+    mode: "first",
+    interrupted: true,
+  });
+});
+
+test("without either exclusion API the game uses unsaved practice and preserves shared records", async ({
+  page,
+  context,
+}) => {
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "locks", { value: undefined });
+    Object.defineProperty(window, "indexedDB", {
+      get() {
+        throw Error("disabled");
+      },
+    });
+  });
+  await start(page);
+  await expect(page.locator(".puzzle-id")).toContainText("練習");
+  for (const q of solution) await tapPlace(page, q);
+  await expect(page.getByRole("heading", { name: "ぴったり！" })).toBeVisible();
+  expect(await records(page)).toHaveLength(0);
+  await expect(page.locator(".badge")).toHaveCount(0);
+  await expect(page.locator(".notice")).toContainText("保存");
+});
+
+test("hidden time suppresses the achievement badge and persists after completed-result reload", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("checkbox", { name: "時間を表示" }).uncheck();
+  await page.getByRole("button", { name: "箱を開く" }).click();
+  for (const q of solution) await tapPlace(page, q);
+  await expect(page.getByRole("heading", { name: "ぴったり！" })).toBeVisible();
+  await expect(page.locator(".badge")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "ぴったり！" })).toBeVisible();
+  await expect(page.locator(".clock, .badge")).toHaveCount(0);
+});
+
+test("stale worker response after a committed placement never displays or counts a hint", async ({
+  page,
+}) => {
+  await page.addInitScript((sol) => {
+    class HeldWorker {
+      onmessage: ((e: { data: unknown }) => void) | null = null;
+      onerror = null;
+      postMessage() {
+        (window as any).deliverHint = () =>
+          this.onmessage?.({ data: { solution: sol } });
+        this.onmessage?.({ data: { ready: true } });
+      }
+      terminate() {}
+    }
+    Object.defineProperty(window, "Worker", { value: HeldWorker });
+  }, solution);
+  await start(page);
+  await page.getByRole("button", { name: "ヒント", exact: false }).click();
+  await tapPlace(page, solution[0]);
+  await page.evaluate(() => (window as any).deliverHint());
+  expect((await records(page))[0].hint_count).toBe(0);
+  await expect(page.locator(".hint-cell")).toHaveCount(0);
+});
+
+test("duplicate final click saves exactly one immutable completed result", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const set = Storage.prototype.setItem;
+    (window as any).completedWrites = 0;
+    Storage.prototype.setItem = function (key, value) {
+      if (
+        key.startsWith("onebox:v1:run:") &&
+        JSON.parse(value).state === "completed"
+      )
+        (window as any).completedWrites++;
+      return set.call(this, key, value);
+    };
+  });
+  await start(page);
+  for (const q of solution.slice(0, -1)) await tapPlace(page, q);
+  const q = solution[solution.length - 1];
+  await page.locator(`[data-piece="${q.piece_id}"]`).click();
+  for (let i = 0; i < q.rotation; i++)
+    await page.getByRole("button", { name: "回転", exact: false }).click();
+  await page.locator(`[data-cell="${q.x},${q.y}"]`).click();
+  await page
+    .locator(".controls .primary")
+    .evaluate((button: HTMLButtonElement) => {
+      button.click();
+      button.click();
+    });
+  await expect(page.getByRole("heading", { name: "ぴったり！" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => (window as any).completedWrites))
+    .toBe(1);
+  const first = (await records(page))[0];
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "ぴったり！" })).toBeVisible();
+  expect((await records(page))[0]).toEqual(first);
+});
+
+test("duplicate start activation creates one first run without a false tab conflict", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "箱を開く" })
+    .evaluate((button: HTMLButtonElement) => {
+      button.click();
+      button.click();
+    });
+  await expect(page.locator(".board")).toBeVisible();
+  await expect.poll(async () => (await records(page)).length).toBe(1);
+  await expect(page.getByRole("alert")).toHaveCount(0);
 });

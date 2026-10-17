@@ -278,6 +278,17 @@ input[type="checkbox"] {
   border-radius: 9px;
   position: relative;
 }
+.board-wrap.completed {
+  animation: fit-settle 220ms ease-out;
+}
+@keyframes fit-settle {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
 .cell {
   border-radius: 6px;
   border: 0;
@@ -713,6 +724,16 @@ dialog label {
 }
 .share-actions button {
   min-height: 44px;
+}
+.x-post,
+.navigation-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--ink);
+  border-radius: 12px;
+  text-decoration: none;
 }
 .share-message {
   overflow-wrap: anywhere;

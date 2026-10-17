@@ -233,3 +233,230 @@ it("uses unsaved memory history on failure without restoring records deleted in 
   ).toBe(true);
   expect(JSON.stringify(storage.data)).toBe(before);
 });
+
+it("prunes 181 puzzle details while retaining old first-attempt identities", () => {
+  const { data } = historyStorage(),
+    store = new Store();
+  for (let i = 0; i < 181; i++)
+    store.save({
+      ...attempt,
+      run_id: `run-${i}`,
+      puzzle_id: `puzzle-${i}`,
+      started_at_client: new Date(
+        Date.UTC(2026, 0, 1) + i * 1000,
+      ).toISOString(),
+    });
+  expect(
+    Object.keys(data).filter((k) => k.startsWith("onebox:v1:current:")),
+  ).toHaveLength(180);
+  expect(data["onebox:v1:current:puzzle-0"]).toBeUndefined();
+  expect(new Store().mode({ ...puzzle, puzzle_id: "puzzle-0" })).toBe(
+    "practice",
+  );
+});
+it("keeps distinct corrupt originals and preserves the durable original when quarantine exceeds quota", () => {
+  const { data } = historyStorage(),
+    store = new Store(),
+    current = `onebox:v1:current:${puzzle.puzzle_id}`;
+  data[current] = "broken-one";
+  expect(store.read(puzzle, "hash")).toBeNull();
+  data[current] = "broken-two";
+  expect(store.read(puzzle, "hash")).toBeNull();
+  expect(
+    Object.keys(data)
+      .filter((k) => k.startsWith("onebox:v1:quarantine:"))
+      .map((k) => data[k]),
+  ).toEqual(["broken-one", "broken-two"]);
+  data[current] = "last-durable-copy";
+  vi.stubGlobal("localStorage", {
+    getItem: (k: string) => data[k] ?? null,
+    setItem: () => {
+      throw Error("quota");
+    },
+    removeItem: (k: string) => {
+      delete data[k];
+    },
+  });
+  expect(new Store().read(puzzle, "hash")).toBeNull();
+  expect(data[current]).toBe("last-durable-copy");
+  expect(store.mode(puzzle)).toBe("practice");
+});
+
+it("a quarantined checkpoint cannot reissue a first attempt after reloading", () => {
+  const { data } = historyStorage();
+  data[`onebox:v1:current:${puzzle.puzzle_id}`] = "{broken";
+  expect(new Store().read(puzzle, "hash")).toBeNull();
+  expect(new Store().mode(puzzle)).toBe("practice");
+});
+
+async function publishedHistory() {
+  const { hashPuzzle } = await import("./index");
+  const { nextUtcUpdate } = await import("./release");
+  const puzzles = ["2026-10-17", "2026-10-16"].map((day) =>
+    validatePuzzle({
+      ...puzzle,
+      puzzle_id: `onebox-${day}`,
+      purpose: "production_daily",
+    }),
+  );
+  const entries = await Promise.all(
+    puzzles.map(async (p) => {
+      const day = p.puzzle_id.slice(7),
+        sha256 = await hashPuzzle(p);
+      return {
+        puzzle_id: p.puzzle_id,
+        purpose: "production_daily" as const,
+        edition_utc: day,
+        slug: p.puzzle_id,
+        sha256,
+        payload_url: `/puzzles/${sha256}.json`,
+        opens_at: `${day}T00:00:00.000Z`,
+        scheduled_close_at: nextUtcUpdate(`${day}T00:00:00.000Z`),
+      };
+    }),
+  );
+  return { puzzles, entries };
+}
+it("lists seven validated daily attempts across editions without private/tutorial/fake records or writes", async () => {
+  const { data } = historyStorage(),
+    { puzzles, entries } = await publishedHistory();
+  for (let i = 0; i < 10; i++) {
+    const e = entries[i % 2];
+    const a = {
+      ...attempt,
+      run_id: `daily-${i}`,
+      puzzle_id: e.puzzle_id,
+      puzzle_hash: e.sha256,
+      mode: i === 9 ? "first" : "practice",
+      state: i === 8 ? "abandoned" : "paused",
+      finished_at_client: i === 8 ? new Date().toISOString() : null,
+      interrupted: true,
+      hint_count: i,
+      timer_visible: i !== 7,
+      started_at_client: new Date(Date.UTC(2026, 9, 17, 0, i)).toISOString(),
+    };
+    data[`onebox:v1:run:${a.run_id}`] = JSON.stringify(a);
+  }
+  data["onebox:v1:run:private"] = JSON.stringify({
+    ...attempt,
+    run_id: "private",
+    puzzle_id: "private-candidate",
+  });
+  for (const [id, change] of Object.entries({
+    tutorial: { mode: "tutorial" },
+    hash: { puzzle_hash: "wrong" },
+    fake: { state: "completed", finished_at_client: new Date().toISOString() },
+    key: { run_id: "different" },
+  })) {
+    data[`onebox:v1:run:${id}`] = JSON.stringify({
+      ...attempt,
+      puzzle_id: entries[0].puzzle_id,
+      puzzle_hash: entries[0].sha256,
+      run_id: id,
+      ...change,
+    });
+  }
+  const before = JSON.stringify(data),
+    store = new Store(),
+    load = vi.fn(async (e) =>
+      puzzles.find((p) => p.puzzle_id === e.puzzle_id)!,
+    );
+  const result = await store.recentPublished(entries, load);
+  expect(result.records.map((a) => a.run_id)).toEqual(
+    [9, 8, 7, 6, 5, 4, 3].map((i) => `daily-${i}`),
+  );
+  expect(result.records[0]).toMatchObject({
+    mode: "first",
+    hint_count: 9,
+    interrupted: true,
+  });
+  expect(result.records[1].state).toBe("abandoned");
+  expect(result.records[2].timer_visible).toBe(false);
+  expect(result.unavailable).toBe(false);
+  expect(load).toHaveBeenCalledTimes(2);
+  expect(store.warning).toBe(true);
+  expect(JSON.stringify(data)).toBe(before);
+});
+it("keeps unavailable daily records and shows other verified editions without changing first eligibility", async () => {
+  const { data } = historyStorage(),
+    { puzzles, entries } = await publishedHistory(),
+    store = new Store();
+  for (const [i, e] of entries.entries())
+    data[`onebox:v1:run:daily-${i}`] = JSON.stringify({
+      ...attempt,
+      run_id: `daily-${i}`,
+      puzzle_id: e.puzzle_id,
+      puzzle_hash: e.sha256,
+    });
+  const before = JSON.stringify(data);
+  const result = await store.recentPublished(entries, async (e) => {
+    if (e.puzzle_id === entries[0].puzzle_id) throw Error("offline");
+    return puzzles[1];
+  });
+  expect(result.records.map((a) => a.run_id)).toEqual(["daily-1"]);
+  expect(result.unavailable).toBe(true);
+  expect(store.warning).toBe(false);
+  expect(store.mode(puzzles[0])).toBe("first");
+  expect(JSON.stringify(data)).toBe(before);
+});
+it("excludes an entry whose loader returned a different puzzle and only loads allowlisted IDs", async () => {
+  const { data } = historyStorage(),
+    { puzzles, entries } = await publishedHistory(),
+    store = new Store();
+  data["onebox:v1:run:current"] = JSON.stringify({
+    ...attempt,
+    run_id: "current",
+    puzzle_id: entries[0].puzzle_id,
+    puzzle_hash: entries[0].sha256,
+  });
+  data["onebox:v1:run:recalled"] = JSON.stringify({
+    ...attempt,
+    run_id: "recalled",
+    puzzle_id: entries[1].puzzle_id,
+    puzzle_hash: entries[1].sha256,
+  });
+  const load = vi.fn(async () => puzzles[1]);
+  const result = await store.recentPublished([entries[0]], load);
+  expect(result.records).toEqual([]);
+  expect(result.unavailable).toBe(true);
+  expect(load).toHaveBeenCalledTimes(1);
+});
+it("does not revive records deleted while a daily history payload is loading", async () => {
+  const { data } = historyStorage(),
+    { puzzles, entries } = await publishedHistory(),
+    store = new Store();
+  data["onebox:v1:run:pending"] = JSON.stringify({
+    ...attempt,
+    run_id: "pending",
+    puzzle_id: entries[0].puzzle_id,
+    puzzle_hash: entries[0].sha256,
+  });
+  const result = await store.recentPublished(entries, async () => {
+    new Store().clear();
+    return puzzles[0];
+  });
+  expect(result.records).toEqual([]);
+  expect(Object.keys(data).some((k) => k.startsWith("onebox:v1:run:"))).toBe(
+    false,
+  );
+});
+
+it("clearing during a failed history lookup also removes already collected results", async () => {
+  const { data } = historyStorage(),
+    { puzzles, entries } = await publishedHistory(),
+    store = new Store();
+  for (const [i, e] of entries.entries())
+    data[`onebox:v1:run:lookup-${i}`] = JSON.stringify({
+      ...attempt,
+      run_id: `lookup-${i}`,
+      puzzle_id: e.puzzle_id,
+      puzzle_hash: e.sha256,
+      started_at_client: `2026-10-17T00:00:0${2 - i}.000Z`,
+    });
+  const result = await store.recentPublished(entries, async (e) => {
+    if (e.puzzle_id === entries[0].puzzle_id) return puzzles[0];
+    store.clear();
+    throw Error("offline");
+  });
+  expect(result.records).toEqual([]);
+});

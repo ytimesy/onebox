@@ -396,6 +396,20 @@ export function findEntry(c: Catalog, id: string) {
   if (!e) throw Error("Candidate not found");
   return e;
 }
+// Reuse only an unchanged, content-hashed history. A changed history object or
+// in-place edit forces a full geometry scan; the 180-item duplicate check stays.
+const historyGeometry = new WeakMap<
+  History,
+  { hash: string; keys: string[] }
+>();
+function checkedHistory(history: History) {
+  const hash = digest(history),
+    old = historyGeometry.get(history);
+  if (old?.hash === hash) return old;
+  const value = { hash, keys: history.items.map((h) => geometryKey(h.puzzle)) };
+  historyGeometry.set(history, value);
+  return value;
+}
 export function checkEntry(c: Catalog, e: Entry) {
   const order = (entry: Entry) => {
     const detail = entry.events
@@ -404,9 +418,10 @@ export function checkEntry(c: Catalog, e: Entry) {
     return detail?.order ?? 0;
   };
   const key = geometryKey(e.puzzle);
+  const history = checkedHistory(c.history);
   const duplicateIds = [
     ...c.history.items
-      .filter((h) => geometryKey(h.puzzle) === key)
+      .filter((_h, i) => history.keys[i] === key)
       .map((h) => h.puzzle.puzzle_id),
     ...c.entries
       .filter(
@@ -418,7 +433,10 @@ export function checkEntry(c: Catalog, e: Entry) {
       .map((other) => other.puzzle.puzzle_id),
   ];
   const prior = [
-    ...c.history.items.map((h) => features(h.puzzle, h.solver_nodes)),
+    ...c.history.items.map((h) => ({
+      puzzle: h.puzzle,
+      nodes: h.solver_nodes,
+    })),
     ...c.entries
       .filter(
         (other) => other !== e && ["approved", "queued"].includes(other.stage),
@@ -433,8 +451,13 @@ export function checkEntry(c: Catalog, e: Entry) {
           order(a) - order(b) ||
           a.puzzle.puzzle_id.localeCompare(b.puzzle.puzzle_id),
       )
-      .map((other) => features(other.puzzle, other.verification.nodes)),
-  ].slice(-2);
+      .map((other) => ({
+        puzzle: other.puzzle,
+        nodes: other.verification.nodes,
+      })),
+  ]
+    .slice(-2)
+    .map((item) => features(item.puzzle, item.nodes));
   const current = features(e.puzzle, e.verification.nodes),
     warnings: Warning[] = [];
   if (prior.length === 2) {
@@ -449,7 +472,7 @@ export function checkEntry(c: Catalog, e: Entry) {
     context_version: "onebox-review-context-v2",
     puzzle_hash: digest(e.puzzle),
     geometry_key: key,
-    history_hash: digest(c.history),
+    history_hash: history.hash,
     other_candidates: c.entries
       .filter((other) => other !== e && other.stage !== "rejected")
       .map((other) => ({

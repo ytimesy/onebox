@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Attempt } from "../../../packages/game-core/index.ts";
 import {
   shareContent,
+  xPostUrl,
   type ShareContent,
 } from "../../../packages/game-core/sharing.ts";
 import type { Locale } from "./i18n";
+import type { PublishedProblem } from "../../../packages/game-core/release.ts";
 
 async function resultImage(content: ShareContent) {
   const canvas = document.createElement("canvas");
@@ -31,9 +33,11 @@ async function resultImage(content: ShareContent) {
 export default function ShareResult({
   attempt,
   locale,
+  published,
 }: {
   attempt: Attempt;
   locale: Locale;
+  published?: PublishedProblem;
 }) {
   const [open, setOpen] = useState(false),
     [message, setMessage] = useState(""),
@@ -41,7 +45,7 @@ export default function ShareResult({
   const dialog = useRef<HTMLDialogElement>(null),
     preview = useRef<HTMLTextAreaElement>(null);
   const ja = locale === "ja",
-    content = shareContent(attempt, locale),
+    content = shareContent(attempt, locale, location.origin, published),
     value = content.text + "\n" + content.url;
   let canShare = false;
   try {
@@ -137,7 +141,7 @@ export default function ShareResult({
           setOpen(true);
         }}
       >
-        {ja ? "この問題を友達に送る" : "Send this puzzle to a friend"}
+        {ja ? "Xに投稿" : "Post to X"}
       </button>
       <dialog
         ref={dialog}
@@ -146,7 +150,7 @@ export default function ShareResult({
         onClose={() => setOpen(false)}
       >
         <div className="dialog-header">
-          <h2>{ja ? "共有内容を確認" : "Preview your share"}</h2>
+          <h2>{ja ? "Xへの投稿内容を確認" : "Preview your X post"}</h2>
           <button
             onClick={() => setOpen(false)}
             aria-label={ja ? "閉じる" : "Close"}
@@ -159,6 +163,11 @@ export default function ShareResult({
             ? "解答や操作順は含みません。受け取った人は同じ固定問題を遊べます。"
             : "No solution or moves are included. Your friend can play the same fixed puzzle."}
         </p>
+        <p>
+          {ja
+            ? "Xの投稿画面を開きます。投稿はXで確認して確定してください。"
+            : "Open the X composer, then review and publish your post on X."}
+        </p>
         <label htmlFor="share-preview">
           {ja ? "共有するテキストとリンク" : "Text and link to share"}
         </label>
@@ -170,6 +179,14 @@ export default function ShareResult({
           rows={10}
         />
         <div className="share-actions">
+          <a
+            className="primary x-post"
+            href={xPostUrl(content)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {ja ? "Xに投稿" : "Post to X"}
+          </a>
           {canShare && (
             <button onClick={() => void share()}>
               {ja ? "共有先を選ぶ" : "Choose a share destination"}

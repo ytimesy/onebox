@@ -24,7 +24,7 @@ it("shares an immutable released URL and honest result fields without IDs, solut
   for (const locale of ["ja", "en"] as const) {
     const c = shareContent(result, locale);
     expect(c.url).toBe(publicOrigin + fixedPath(locale) + "?src=share");
-    expect(c.text).toContain("53.4");
+    expect(c.text).toContain("53.5");
     expect(c.text).toContain(locale === "ja" ? "ヒント2回" : "Hints 2");
     expect(c.text).toContain(locale === "ja" ? "中断あり" : "Interrupted");
     expect(c.text).toContain(locale === "ja" ? "練習" : "Practice");
@@ -46,7 +46,7 @@ it("omits hidden or uncertain time from every shared representation", () => {
   ])
     for (const locale of ["ja", "en"] as const)
       expect(JSON.stringify(shareContent(a, locale))).not.toMatch(
-        /53\.4|秒|seconds/,
+        /53\.5|秒|seconds/,
       );
 });
 it("never shares private candidates, solution-only results, unfinished or tutorial runs", () => {
@@ -82,4 +82,17 @@ it("allows only released locale/slug and the exact share source, independently o
     "?src=share&next=https://evil.example",
   ])
     expect(publicRoute(fixedPath("ja"), query)).toBeNull();
+});
+
+it("labels a loopback link as local and rejects an unverified external origin", () => {
+  const c = shareContent(result, "ja", "http://127.0.0.1:4326");
+  expect(c.url).toBe("http://127.0.0.1:4326" + fixedPath("ja") + "?src=share");
+  expect(c.text).toContain("ローカル試遊用");
+  for (const origin of [
+    "https://invalid.example",
+    publicOrigin + "/path",
+    "http://127.0.0.1:4326/path",
+    "javascript:alert(1)",
+  ])
+    expect(() => shareContent(result, "en", origin)).toThrow();
 });

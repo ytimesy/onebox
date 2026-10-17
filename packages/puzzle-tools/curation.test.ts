@@ -212,6 +212,24 @@ it("checks the full latest 180 history entries and blocks incomplete or mutable 
   expect(() => replaceHistory(c, changed, "test", at)).toThrow();
   expect(() => replaceHistory(c, history([]), "test", at)).toThrow("backwards");
 });
+it("invalidates cached history geometry after an in-place content change", () => {
+  const c = imported(),
+    e = c.entries[0];
+  replaceHistory(c, history([e.puzzle]), "test", at);
+  const before = checkEntry(c, e);
+  expect(before.duplicates).toContain("history-1");
+  const other = fixtures.find((p) => geometryKey(p) !== e.geometry_key)!;
+  const item = c.history.items[0];
+  item.puzzle = {
+    ...structuredClone(other),
+    puzzle_id: item.puzzle.puzzle_id,
+    purpose: "production_daily",
+  };
+  item.hash = digest(item.puzzle);
+  const after = checkEntry(c, e);
+  expect(after.duplicates).not.toContain("history-1");
+  expect(after.check_hash).not.toBe(before.check_hash);
+});
 it("blocks cosmetic duplicates inside a candidate batch until one is rejected", () => {
   const c = imported(),
     original = c.entries[0],
@@ -397,7 +415,7 @@ it("runs the CLI on an isolated synthetic workspace and refuses approval without
     spawnSync(
       process.execPath,
       ["packages/puzzle-tools/curation-cli.ts", ...args, "--workspace", name],
-      { encoding: "utf8" },
+      { encoding: "utf8", timeout: 10000 },
     );
   try {
     mkdirSync(batchDir, { recursive: true, mode: 0o700 });
@@ -453,7 +471,7 @@ it("runs the CLI on an isolated synthetic workspace and refuses approval without
           "--workspace",
           "../../dist",
         ],
-        { encoding: "utf8" },
+        { encoding: "utf8", timeout: 10000 },
       ).status,
     ).toBe(2);
     const linkName = `${name}-link`,
@@ -473,7 +491,7 @@ it("runs the CLI on an isolated synthetic workspace and refuses approval without
             "--workspace",
             linkName,
           ],
-          { encoding: "utf8" },
+          { encoding: "utf8", timeout: 10000 },
         ).status,
       ).toBe(2);
       expect(existsSync(resolve(temp, "state.PRIVATE.json"))).toBe(false);
@@ -485,4 +503,4 @@ it("runs the CLI on an isolated synthetic workspace and refuses approval without
     rmSync(batchDir, { recursive: true, force: true });
     rmSync(temp, { recursive: true, force: true });
   }
-});
+}, 20000);

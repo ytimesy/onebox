@@ -113,6 +113,9 @@ try {
                 .filter((k) => k.startsWith("onebox:v1:run:"))
                 .map((k) => JSON.parse(localStorage.getItem(k))),
             );
+          await expect
+            .poll(async () => (await readRuns())[0]?.state)
+            .toBe("completed");
           const completed = (await readRuns())[0];
           await history().click();
           await expect(dialog).toContainText(ja ? "完成" : "Completed");

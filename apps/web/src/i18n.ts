@@ -28,6 +28,7 @@ export const words = {
     blocked: "斜線のマスには置けません。",
     overlap: "他のピースと重なっています。",
     invalid: "この配置は使えません。",
+    legal: "置けます。",
     placed: "置きました。",
     returned: "トレイに戻しました。",
     undone: "前の配置に戻しました。",
@@ -48,7 +49,8 @@ export const words = {
     noOfficial: "このブラウザーの自己記録です。公式スコアではありません。",
     noSave: "記録を保存・復元できませんでした。今回はそのまま遊べます。",
     conflict:
-      "この問題は別のタブで開いています。そちらを閉じてから続きを選んでください。",
+      "この問題は別のタブで開いています。続けるタブを選んでください。応答がない場合は元のタブを閉じてください。",
+    takeover: "このタブで続ける",
     wait: "準備しています…",
     hintFail: "ヒントを準備できませんでした。続けて遊べます。",
     hintRemove: "このピースを戻して考えてみよう：",
@@ -107,6 +109,7 @@ export const words = {
     blocked: "Avoid the striped fixed squares.",
     overlap: "That overlaps another piece.",
     invalid: "This placement is not valid.",
+    legal: "Can be placed.",
     placed: "Placed.",
     returned: "Returned to the tray.",
     undone: "Previous placement restored.",
@@ -128,7 +131,8 @@ export const words = {
     noSave:
       "Could not save or restore your record. You can still play this time.",
     conflict:
-      "This puzzle is open in another tab. Close it, then choose Continue here.",
+      "This puzzle is open in another tab. Choose which tab to continue in. If it does not respond, close the original tab.",
+    takeover: "Continue in this tab",
     wait: "Getting ready…",
     hintFail: "Could not prepare a hint. You can keep playing.",
     hintRemove: "Try returning this piece: ",

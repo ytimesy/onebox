@@ -26,7 +26,18 @@
     "check:history": "node scripts/check-history.mjs",
     "daily": "node packages/puzzle-tools/daily-cli.ts",
     "test:review-https": "node --test tests/review-https.test.mjs",
-    "install:review-https": "node scripts/install-review-https.mjs"
+    "install:review-https": "node scripts/install-review-https.mjs",
+    "build:daily-preview": "node scripts/build-daily-preview.mjs",
+    "serve:daily-preview": "node scripts/daily-preview-server.mjs",
+    "test:daily-preview": "node scripts/check-daily-preview.mjs",
+    "check:daily-rehearsal": "node scripts/check-daily-rehearsal.mjs",
+    "check:daily-lifecycle": "node scripts/check-daily-lifecycle.mjs",
+    "check:daily-start": "node scripts/check-daily-start.mjs",
+    "check:daily-archive": "node scripts/check-daily-archive.mjs",
+    "build:production": "node scripts/build-production.mjs",
+    "production": "node scripts/publish-daily.mjs",
+    "test:production": "node --test tests/production.test.mjs",
+    "check:production": "node scripts/check-production.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

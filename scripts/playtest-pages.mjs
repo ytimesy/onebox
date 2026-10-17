@@ -8,13 +8,13 @@ import {
   publicMetadata,
 } from "../packages/game-core/public-route.ts";
 
-export async function writePlaytestPages(root, source) {
+export async function writePlaytestPages(root, source, options = {}) {
   // Generic branding only: neither a board nor a puzzle solution is rendered.
   const browser = await chromium.launch();
   let png;
   try {
     const page = await browser.newPage();
-    const base64 = await page.evaluate(() => {
+    const base64 = await page.evaluate((label) => {
       const canvas = document.createElement("canvas");
       canvas.width = 1200;
       canvas.height = 630;
@@ -32,9 +32,9 @@ export async function writePlaytestPages(root, source) {
       c.font = "42px sans-serif";
       c.fillText("Four pieces. One perfect fit.", 80, 410);
       c.font = "30px sans-serif";
-      c.fillText("Fixed puzzle / Playtest", 80, 530);
+      c.fillText(label, 80, 530);
       return canvas.toDataURL("image/png").split(",")[1];
-    });
+    }, options.label ?? "Fixed puzzle / Playtest");
     png = Buffer.from(base64, "base64");
   } finally {
     await browser.close();

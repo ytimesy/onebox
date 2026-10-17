@@ -3,5 +3,11 @@ import App from "./App";
 import PublishedApp from "./PublishedApp";
 import "./style.css";
 createRoot(document.getElementById("root")!).render(
-  import.meta.env.VITE_STAGE === "playtest" ? <PublishedApp /> : <App />,
+  ["playtest", "daily-preview", "daily"].includes(
+    import.meta.env.VITE_STAGE,
+  ) ? (
+    <PublishedApp />
+  ) : (
+    <App />
+  ),
 );

@@ -1,0 +1,10 @@
+{
+  "policy": "machine-verified-human-trial-waived-20261017",
+  "decision_date_jst": "2026-10-17",
+  "user_instruction": "試遊の確認はスキップして、正式版の公開を進めて",
+  "human_trial_acceptance": "not_performed",
+  "initial_machine_stock_required": 30,
+  "update_boundary": "00:00 UTC",
+  "local_date_check_interval_seconds": 60,
+  "external_jobs_enabled": false
+}
